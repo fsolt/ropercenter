@@ -79,15 +79,19 @@ roper_download <- function(file_id,
   remDr$findElement(using = "name", "password")$sendKeysToElement(list(password))
   remDr$findElement(using = "name", "signin")$clickElement()
   Sys.sleep(5)
-    
+ 
+  # Create download directory, if necessary
+  if (!dir.exists(download_dir)) dir.create(download_dir, recursive = TRUE)
+     
   # Loop through files
   for (i in seq(file_id)) { 
       item <- file_id[[i]]
       if(msg) message("Downloading Roper Center file: ", item, sprintf(" (%s)", Sys.time()))
 
       # Get list of current download directory contents
-      if (!dir.exists(download_dir)) dir.create(download_dir, recursive = TRUE)
-      dd_old <- list.files(download_dir)
+      new_dir <- file.path(download_dir, item)
+      if (!dir.exists(new_dir)) dir.create(new_dir, recursive = TRUE)
+      dd_old <- list.files(new_dir)
             
       # build url
       url <- paste0("http://ropercenter.cornell.edu/CFIDE/cf/action/catalog/abstract.cfm?type=&start=&id=&archno=", item, "&abstract=")
@@ -97,33 +101,33 @@ roper_download <- function(file_id,
       remDr$findElement(using = "partial link text", "SPSS file")$clickElement()
       
       # check that download has completed
-      dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
+      dd_new <- list.files(new_dir)[!list.files(new_dir) %in% dd_old]
       wait <- TRUE
       tryCatch(
         while(all.equal(str_detect(dd_new, "\\.part$"), logical(0))) {
           Sys.sleep(1)
-          dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
+          dd_new <- list.files(new_dir)[!list.files(new_dir) %in% dd_old]
         }, error = function(e) 1 )
       while(any(str_detect(dd_new, "\\.part$"))) {
         Sys.sleep(1)
-        dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
+        dd_new <- list.files(new_dir)[!list.files(new_dir) %in% dd_old]
       }
       
       # get codebook
-      dd_old <- list.files(download_dir)
+      dd_old <- list.files(new_dir)
       remDr$findElement(using = "partial link text", "PDF file")$clickElement()
       
       # check that download has completed
-      dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
+      dd_new <- list.files(new_dir)[!list.files(new_dir) %in% dd_old]
       wait <- TRUE
       tryCatch(
         while(all.equal(str_detect(dd_new, "\\.part$"), logical(0))) {
           Sys.sleep(1)
-          dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
+          dd_new <- list.files(new_dir)[!list.files(new_dir) %in% dd_old]
         }, error = function(e) 1 )
       while(any(str_detect(dd_new, "\\.part$"))) {
         Sys.sleep(1)
-        dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
+        dd_new <- list.files(new_dir)[!list.files(new_dir) %in% dd_old]
       }
       
   }
