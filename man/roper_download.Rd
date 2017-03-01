@@ -21,14 +21,14 @@ which files from the Roper Center will be downloaded.}
 
 \item{msg}{If TRUE, outputs a message showing which data set is being downloaded.}
 
-\item{convert}{If TRUE, downloaded data files will be re-saved in .RData format}
+\item{convert}{If TRUE, converts downloaded file(s) to .RData format}
 }
 \value{
 The function returns downloaded files.
 }
 \description{
 \code{roper_download} provides a programmatic and reproducible means to download datasets 
-  from the Roper Center data archive
+  from the Roper Center's data archive
 }
 \details{
 To avoid requiring others to edit your scripts to insert their own email and  

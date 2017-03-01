@@ -2,8 +2,6 @@
 
 export(roper_download)
 import(RSelenium)
-importFrom(dplyr,"%>%")
-importFrom(dplyr,last)
 importFrom(haven,read_por)
-importFrom(rio,export)
 importFrom(stringr,str_detect)
+importFrom(tools,file_path_sans_ext)

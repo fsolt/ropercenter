@@ -4,7 +4,7 @@ Title: Reproducible Data Retrieval from the Roper Center Data Archive
 Version: 0.1.0
 Date: 2017-03-01
 Authors@R: c(
-    person("Frederick", "Solt", email = "frederick-solt@uiowa.edu", role = c("aut", "cre"))
+    person("Frederick", "Solt", email = "frederick-solt@uiowa.edu", role = c("aut", "cre")))
 Description: Reproducible, programmatic retrieval of datasets from the
     Roper Center data archive.
 License: MIT + file LICENSE
