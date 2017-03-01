@@ -125,11 +125,11 @@ roper_download <- function(file_id,
       dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
       wait <- TRUE
       tryCatch(
-        while(all.equal(str_detect(dd_new, "\\.part$"), logical(0))) {
+        while(all.equal(stringr::str_detect(dd_new, "\\.part$"), logical(0))) {
           Sys.sleep(1)
           dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
         }, error = function(e) 1 )
-      while(any(str_detect(dd_new, "\\.part$"))) {
+      while(any(stringr::str_detect(dd_new, "\\.part$"))) {
         Sys.sleep(1)
         dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
       }
