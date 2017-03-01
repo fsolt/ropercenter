@@ -10,8 +10,6 @@
 #' @param download_dir The directory (relative to your working directory) to
 #'   which files from the Roper Center will be downloaded.
 #' @param msg If TRUE, outputs a message showing which data set is being downloaded.
-#' @param unzip If TRUE, the downloaded zip files will be unzipped.
-#' @param delete_zip If TRUE, the downloaded zip files will be deleted.
 #'
 #' @details 
 #'  To avoid requiring others to edit your scripts to insert their own email and  
@@ -34,6 +32,9 @@
 #' 
 #' @import RSelenium
 #' @importFrom stringr str_detect
+#' @importFrom haven read_por
+#' @importFrom rio export
+#' @importFrom tools file_path_sans_ext
 #' 
 #' @export
 roper_download <- function(file_id, 
@@ -61,6 +62,7 @@ roper_download <- function(file_id,
   }
   
   # Initialize driver
+  if(msg) message("Initializing RSelenium driver")
   fprof <- makeFirefoxProfile(list(
     browser.download.dir = file.path(getwd(), download_dir),
     browser.download.folderList = 2L,
@@ -78,7 +80,7 @@ roper_download <- function(file_id,
   remDr$findElement(using = "name", "username")$sendKeysToElement(list(email))
   remDr$findElement(using = "name", "password")$sendKeysToElement(list(password))
   remDr$findElement(using = "name", "signin")$clickElement()
-  Sys.sleep(5)
+  Sys.sleep(3)
     
   # Loop through files
   for (i in seq(file_id)) { 
