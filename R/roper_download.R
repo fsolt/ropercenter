@@ -1,7 +1,7 @@
 #' Download datasets from the Roper Center
 #'
 #' \code{roper_download} provides a programmatic and reproducible means to download datasets 
-#'   from the Roper Center data archive
+#'   from the Roper Center's data archive
 #'
 #' @param file_id The unique identifier (or optionally a vector of these identifiers)
 #'  for the dataset(s) to be downloaded (see details).
