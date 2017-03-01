@@ -32,9 +32,8 @@
 #' }
 #' 
 #' @import RSelenium
-#' @importFrom stringr str_detect
+#' @importFrom stringr str_detect str_replace
 #' @importFrom haven read_por
-#' @importFrom tools file_path_sans_ext
 #' 
 #' @export
 roper_download <- function(file_id, 
@@ -115,7 +114,7 @@ roper_download <- function(file_id,
       # convert to .RData
       if (convert == TRUE) {
         x <- haven::read_por(file.path(download_dir, dd_new))
-        save(x, file = paste0(tools::file_path_sans_ext(file.path(download_dir, dd_new)), ".RData"))
+        save(x, file = stringr::str_replace(file.path(download_dir, dd_new), ".por", ".RData"))
       }
       
       # get codebook
