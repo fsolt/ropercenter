@@ -10,6 +10,7 @@
 #' @param download_dir The directory (relative to your working directory) to
 #'   which files from the Roper Center will be downloaded.
 #' @param msg If TRUE, outputs a message showing which data set is being downloaded.
+#' @param convert If TRUE, converts downloaded file(s) to .RData format
 #'
 #' @details 
 #'  To avoid requiring others to edit your scripts to insert their own email and  
@@ -33,7 +34,6 @@
 #' @import RSelenium
 #' @importFrom stringr str_detect
 #' @importFrom haven read_por
-#' @importFrom rio export
 #' @importFrom tools file_path_sans_ext
 #' 
 #' @export
@@ -42,7 +42,8 @@ roper_download <- function(file_id,
                            password = getOption("roper_password"),
                            reset = FALSE,
                            download_dir = "roper_data",
-                           msg = TRUE) {
+                           msg = TRUE,
+                           convert = TRUE) {
   
   # Detect login info
   if (reset){
@@ -102,20 +103,26 @@ roper_download <- function(file_id,
       dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
       wait <- TRUE
       tryCatch(
-        while(all.equal(str_detect(dd_new, "\\.part$"), logical(0))) {
+        while(all.equal(stringr::str_detect(dd_new, "\\.part$"), logical(0))) {
           Sys.sleep(1)
           dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
         }, error = function(e) 1 )
-      while(any(str_detect(dd_new, "\\.part$"))) {
+      while(any(stringr::str_detect(dd_new, "\\.part$"))) {
         Sys.sleep(1)
         dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
+      }
+      
+      # convert to .RData
+      if (convert == TRUE) {
+        x <- haven::read_por(file.path(download_dir, dd_new))
+        save(x, file = paste0(tools::file_path_sans_ext(file.path(download_dir, dd_new)), ".RData"))
       }
       
       # get codebook
       dd_old <- list.files(download_dir)
       remDr$findElement(using = "partial link text", "PDF file")$clickElement()
       
-      # check that download has completed
+      # check that codebook download has completed
       dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
       wait <- TRUE
       tryCatch(
