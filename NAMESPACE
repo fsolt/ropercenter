@@ -2,6 +2,7 @@
 
 export(roper_download)
 import(RSelenium)
+importFrom(foreign,read.spss)
 importFrom(haven,read_por)
 importFrom(stringr,str_detect)
 importFrom(stringr,str_replace)
