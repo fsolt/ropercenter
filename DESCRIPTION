@@ -16,6 +16,6 @@ VignetteBuilder: knitr
 Imports:
   foreign,
   haven,
-  RSelenium,
+  RSelenium (>= 1.7.1),
   stringr
 RoxygenNote: 6.0.1
