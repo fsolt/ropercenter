@@ -50,6 +50,10 @@ Multiple datasets may be downloaded from the same research area in a single comm
 roper_download(file_id = c("USORCCNN2015-010", "USORCCNN2015-009", "USORCCNN2015-008"))
 ```
 
-After the needed datasets are downloaded, they are, by default, converted to `.RData` format and ready to be loaded into R using `load()` or `rio::import()`.
+After the needed datasets are downloaded, they are, by default, converted to `.RData` format (via `haven::read_por` if possible, `foreign::read.spss` otherwise) and ready to be loaded into R using `load()` or `rio::import()`.
+
+```{r eval=FALSE}
+orccnn2015_010 <- rio::import("roper_data/USORCCNN2015-010/USORCCNN2015-010.RData")
+```
 
 [^1]: The terms _do_ include the exception that "researchers who are actively collaborating with individuals at non-member institutions may provide a copy of relevant data sets to their collaborators solely for their private use in connection with and for the duration of the project, after which they will return or destroy such material," but the limitation to active collaboration renders this inadequate for the public provision of materials for reproducibility.

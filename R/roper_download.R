@@ -34,6 +34,7 @@
 #' @import RSelenium
 #' @importFrom stringr str_detect str_replace
 #' @importFrom haven read_por
+#' @importFrom foreign read.spss
 #' 
 #' @export
 roper_download <- function(file_id, 
@@ -111,10 +112,19 @@ roper_download <- function(file_id,
         dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
       }
       
+      # create item directory and move file
+      if (!dir.exists(file.path(download_dir, item))) dir.create(file.path(download_dir, item))
+      file.rename(file.path(download_dir, dd_new), file.path(download_dir, item, dd_new))
+      
       # convert to .RData
       if (convert == TRUE) {
-        x <- haven::read_por(file.path(download_dir, dd_new))
-        save(x, file = stringr::str_replace(file.path(download_dir, dd_new), ".por", ".RData"))
+        x <- tryCatch(haven::read_por(file.path(download_dir, item, dd_new)),
+          error = function(e) {
+            foreign::read.spss(file.path(download_dir, item, dd_new),
+                                                      to.data.frame = TRUE,
+                                                      use.value.labels = FALSE)
+          })
+        save(x, file = stringr::str_replace(file.path(download_dir, item, dd_new), ".por", ".RData"))
       }
       
       # get codebook
@@ -134,6 +144,8 @@ roper_download <- function(file_id,
         dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
       }
       
+      # move codebook to item directory
+      file.rename(file.path(download_dir, dd_new), file.path(download_dir, item, dd_new))
   }
   
   # Close driver
