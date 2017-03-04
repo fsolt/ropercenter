@@ -10,7 +10,7 @@
 #' @param download_dir The directory (relative to your working directory) to
 #'   which files from the Roper Center will be downloaded.
 #' @param msg If TRUE, outputs a message showing which data set is being downloaded.
-#' @param convert If TRUE, converts downloaded file(s) to .RData format
+#' @param convert If TRUE, converts downloaded file(s) to .RData format.
 #'
 #' @details 
 #'  To avoid requiring others to edit your scripts to insert their own email and  
