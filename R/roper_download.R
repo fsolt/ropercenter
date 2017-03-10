@@ -31,8 +31,9 @@
 #'  roper_download(file_id = c("CNCIPO1996-96010", "CNCIPO2000-02"))
 #' }
 #' 
-#' @import RSelenium
-#' @importFrom stringr str_detect str_replace
+#' @import rvest
+#' @importFrom httr content cookies set_cookies
+#' @importFrom stringr str_replace
 #' @importFrom haven read_por
 #' @importFrom foreign read.spss
 #' 
@@ -45,7 +46,7 @@ roper_download <- function(file_id,
                            msg = TRUE,
                            convert = TRUE) {
   
-  # Detect login info
+  # detect login info
   if (reset){
     email <- password <- NULL
   }
@@ -62,94 +63,71 @@ roper_download <- function(file_id,
     password <- getOption("roper_password")
   }
   
-  # Initialize driver
-  if(msg) message("Initializing RSelenium driver")
-  fprof <- makeFirefoxProfile(list(
-    browser.download.dir = file.path(getwd(), download_dir),
-    browser.download.folderList = 2L,
-    browser.download.manager.showWhenStarting = FALSE,
-    pdfjs.disabled=TRUE,
-    plugin.scan.plid.all = FALSE,
-    plugin.scan.Acrobat = "99.0",
-    browser.helperApps.neverAsk.saveToDisk = "application/x-zip, application/por, application/pdf"))
-  rD <- rsDriver(browser = "firefox", extraCapabilities = fprof, verbose = FALSE)
-  remDr <- rD[["client"]]
-
-  # Sign in
+  # enter username and password
   signin <- "http://ropercenter.cornell.edu/CFIDE/cf/action/login/signin.cfm"
-  remDr$navigate(signin)
-  remDr$findElement(using = "name", "username")$sendKeysToElement(list(email))
-  remDr$findElement(using = "name", "password")$sendKeysToElement(list(password))
-  remDr$findElement(using = "name", "signin")$clickElement()
-  Sys.sleep(3)
-    
+  p0 <- html_session(signin)
+  
+  f0 <- html_form(p0) %>%
+    first() %>% 
+    set_values("username" = email,
+               "password" = password)
+  
+  c0 <- httr::cookies(p0)$value
+  names(c0) <- httr::cookies(p0)$name
+  p1 <- suppressMessages(submit_form(session = p0, form = f0, config = httr::set_cookies(.cookies = c0)))
+      
   # Loop through files
   for (i in seq(file_id)) { 
       item <- file_id[[i]]
       if(msg) message("Downloading Roper Center file: ", item, sprintf(" (%s)", Sys.time()))
 
-      # Get list of current download directory contents
-      if (!dir.exists(download_dir)) dir.create(download_dir, recursive = TRUE)
-      dd_old <- list.files(download_dir)
+      # create item directory
+      item_dir <- file.path(download_dir, item)
+      if (!dir.exists(item_dir)) dir.create(item_dir, recursive = TRUE)
             
       # build url
       url <- paste0("http://ropercenter.cornell.edu/CFIDE/cf/action/catalog/abstract.cfm?type=&start=&id=&archno=", item, "&abstract=")
       
-      # navigate to download page, start download
-      remDr$navigate(url)
-      remDr$findElement(using = "partial link text", "SPSS file")$clickElement()
+      # navigate to download page, get data
+      item_page <- p1 %>% 
+        jump_to(url) 
       
-      # check that download has completed
-      dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
-      wait <- TRUE
-      tryCatch(
-        while(all.equal(stringr::str_detect(dd_new, "\\.part$"), logical(0))) {
-          Sys.sleep(1)
-          dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
-        }, error = function(e) 1 )
-      while(any(stringr::str_detect(dd_new, "\\.part$"))) {
-        Sys.sleep(1)
-        dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
-      }
+      data_link <- item_page %>% 
+        read_html() %>% 
+        html_node(xpath = "//a[contains(.,'SPSS file')]") %>% 
+        html_attr("href") %>% 
+        trimws() %>% 
+        paste0("https://ropercenter.cornell.edu", .)
+
+      dl_data <- item_page %>% 
+        jump_to(data_link)
       
-      # create item directory and move file
-      if (!dir.exists(file.path(download_dir, item))) dir.create(file.path(download_dir, item))
-      file.rename(file.path(download_dir, dd_new), file.path(download_dir, item, dd_new))
+      data_file <- paste0(item, ".por")
+      writeBin(httr::content(dl_data$response, "raw"), file.path(item_dir, data_file))
       
-      # convert to .RData
+      pdf_link <- item_page %>% 
+        read_html() %>% 
+        html_node(xpath = "//a[contains(.,'PDF file')]") %>% 
+        html_attr("href") %>% 
+        trimws() %>% 
+        paste0("https://ropercenter.cornell.edu", .)
+      
+      dl_pdf <- item_page %>% 
+        jump_to(pdf_link)
+      
+      pdf_file <- paste0(item, "_cb.pdf")
+      writeBin(httr::content(dl_pdf$response, "raw"), file.path(item_dir, pdf_file))
+      
+      # convert data to .RData
       if (convert == TRUE) {
-        x <- tryCatch(haven::read_por(file.path(download_dir, item, dd_new)),
+        x <- tryCatch(haven::read_por(file.path(item_dir, data_file)),
           error = function(e) {
-            foreign::read.spss(file.path(download_dir, item, dd_new),
-                                                      to.data.frame = TRUE,
-                                                      use.value.labels = FALSE)
+            foreign::read.spss(file.path(item_dir, data_file),
+                               to.data.frame = TRUE,
+                               use.value.labels = FALSE)
           })
-        save(x, file = stringr::str_replace(file.path(download_dir, item, dd_new), ".por", ".RData"))
+        save(x, file = stringr::str_replace(file.path(item_dir, data_file), ".por", ".RData"))
       }
-      
-      # get codebook
-      dd_old <- list.files(download_dir)
-      remDr$findElement(using = "partial link text", "PDF file")$clickElement()
-      
-      # check that codebook download has completed
-      dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
-      wait <- TRUE
-      tryCatch(
-        while(all.equal(stringr::str_detect(dd_new, "\\.part$"), logical(0))) {
-          Sys.sleep(1)
-          dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
-        }, error = function(e) 1 )
-      while(any(stringr::str_detect(dd_new, "\\.part$"))) {
-        Sys.sleep(1)
-        dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
-      }
-      
-      # move codebook to item directory
-      file.rename(file.path(download_dir, dd_new), file.path(download_dir, item, dd_new))
   }
-  
-  # Close driver
-  remDr$close()
-  rD[["server"]]$stop()
 }  
 

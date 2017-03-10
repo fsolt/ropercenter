@@ -21,7 +21,7 @@ which files from the Roper Center will be downloaded.}
 
 \item{msg}{If TRUE, outputs a message showing which data set is being downloaded.}
 
-\item{convert}{If TRUE, converts downloaded file(s) to .RData format}
+\item{convert}{If TRUE, converts downloaded file(s) to .RData format.}
 }
 \value{
 The function returns downloaded files.
