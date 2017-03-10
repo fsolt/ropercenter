@@ -31,8 +31,9 @@
 #'  roper_download(file_id = c("CNCIPO1996-96010", "CNCIPO2000-02"))
 #' }
 #' 
-#' @import RSelenium
-#' @importFrom stringr str_detect str_replace
+#' @import rvest
+#' @import httr content cookies set_cookies
+#' @importFrom stringr str_replace
 #' @importFrom haven read_por
 #' @importFrom foreign read.spss
 #' 
