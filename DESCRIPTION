@@ -14,8 +14,9 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 Imports:
+  rvest,
+  httr,
   foreign,
   haven,
-  RSelenium (>= 1.7.1),
   stringr
 RoxygenNote: 6.0.1
