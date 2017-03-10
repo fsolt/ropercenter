@@ -92,27 +92,27 @@ roper_download <- function(file_id,
       item_page <- p1 %>% 
         jump_to(url) 
       
-      data_link <- p2 %>% 
+      data_link <- item_page %>% 
         read_html() %>% 
         html_node(xpath = "//a[contains(.,'SPSS file')]") %>% 
         html_attr("href") %>% 
         trimws() %>% 
         paste0("https://ropercenter.cornell.edu", .)
 
-      dl_data <- p2 %>% 
+      dl_data <- item_page %>% 
         jump_to(data_link)
       
       data_file <- paste0(item, ".por")
-      writeBin(httr::content(dl_file$response, "raw"), file.path(item_dir, data_file))
+      writeBin(httr::content(dl_data$response, "raw"), file.path(item_dir, data_file))
       
-      pdf_link <- p2 %>% 
+      pdf_link <- item_page %>% 
         read_html() %>% 
         html_node(xpath = "//a[contains(.,'PDF file')]") %>% 
         html_attr("href") %>% 
         trimws() %>% 
         paste0("https://ropercenter.cornell.edu", .)
       
-      dl_pdf <- p2 %>% 
+      dl_pdf <- item_page %>% 
         jump_to(pdf_link)
       
       pdf_file <- paste0(item, "_cb.pdf")
