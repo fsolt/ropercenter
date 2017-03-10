@@ -16,7 +16,9 @@ VignetteBuilder: knitr
 Imports:
   rvest,
   httr,
-  foreign,
+  xml2,
+  dplyr,
+  stringr,
   haven,
-  stringr
+  foreign
 RoxygenNote: 6.0.1

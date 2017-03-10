@@ -33,6 +33,8 @@
 #' 
 #' @import rvest
 #' @importFrom httr content cookies set_cookies
+#' @importFrom xml2 read_html
+#' @importFrom dplyr '%>%' first
 #' @importFrom stringr str_replace
 #' @importFrom haven read_por
 #' @importFrom foreign read.spss
@@ -96,8 +98,8 @@ roper_download <- function(file_id,
         read_html() %>% 
         html_node(xpath = "//a[contains(.,'SPSS file')]") %>% 
         html_attr("href") %>% 
-        trimws() %>% 
-        paste0("https://ropercenter.cornell.edu", .)
+        trimws() 
+      data_link <- paste0("https://ropercenter.cornell.edu", data_link)
 
       dl_data <- item_page %>% 
         jump_to(data_link)
@@ -109,8 +111,8 @@ roper_download <- function(file_id,
         read_html() %>% 
         html_node(xpath = "//a[contains(.,'PDF file')]") %>% 
         html_attr("href") %>% 
-        trimws() %>% 
-        paste0("https://ropercenter.cornell.edu", .)
+        trimws()
+      pdf_link <- paste0("https://ropercenter.cornell.edu", pdf_link)
       
       dl_pdf <- item_page %>% 
         jump_to(pdf_link)
