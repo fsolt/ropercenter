@@ -32,7 +32,7 @@
 #' }
 #' 
 #' @import rvest
-#' @import httr content cookies set_cookies
+#' @importFrom httr content cookies set_cookies
 #' @importFrom stringr str_replace
 #' @importFrom haven read_por
 #' @importFrom foreign read.spss
@@ -74,7 +74,7 @@ roper_download <- function(file_id,
   
   c0 <- httr::cookies(p0)$value
   names(c0) <- httr::cookies(p0)$name
-  p1 <- submit_form(session = p0, form = f0, config = httr::set_cookies(.cookies = c0))
+  p1 <- suppressMessages(submit_form(session = p0, form = f0, config = httr::set_cookies(.cookies = c0)))
       
   # Loop through files
   for (i in seq(file_id)) { 
