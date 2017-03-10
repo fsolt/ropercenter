@@ -27,12 +27,11 @@ options("roper_email" = "juanita-herrera@uppermidwest.edu",
         "roper_password" = "password123!")
 ```
 
-The `roper_download` function will then access the information it needs to pass on to ICPSR by default.  This means that researchers will not have to expose their info in their R scripts and that others reproducing their results later will be able to execute those R scripts without modification.  (They will, however, need to enter their own information into their own .Rprofiles, a detail that should be noted in the reproducibility materials to avoid confusion.)
+The `roper_download` function will then access the information it needs to pass on to the Roper Center by default.  This means that researchers will not have to expose their info in their R scripts and that others reproducing their results later will be able to execute those R scripts without modification.  (They will, however, need to enter their own information into their own .Rprofiles, a detail that should be noted in the reproducibility materials to avoid confusion.)
 
 
 ## Use
-
-The `roper_download` function (1) opens a Firefox browser and navigates to the Roper Center's sign-in page, (2) enters the required information to sign in, (3) navigates to a specified dataset and downloads the dataset's files, and, optionally but by default, (4) converts the dataset's files to `.Rdata` format.
+The `roper_download` function (1) simulates a visit to the Roper Center's sign-in page, (2) enters the required information to sign in, (3) navigates to a specified dataset and downloads the dataset's files, and, optionally but by default, (4) converts the dataset's files to `.Rdata` format.
 
 Datasets are specified using the `file_id` argument.  The Roper Center uses a unique number to identify each of its datasets; this number is consistently listed alongside the dataset's name.  For this [CNN/ORC poll on the 2016 presidential election](https://ropercenter.cornell.edu/CFIDE/cf/action/catalog/abstract.cfm?type=&start=&id=&archno=USORCCNN2015-010&abstract=), for example, the file id is USORCCNN2015-010:
 
