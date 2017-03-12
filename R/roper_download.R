@@ -94,19 +94,46 @@ roper_download <- function(file_id,
       item_page <- p1 %>% 
         jump_to(url) 
       
-      data_link <- item_page %>% 
+      data_links <- item_page %>% 
         read_html() %>% 
-        html_node(xpath = "//a[contains(.,'SPSS file')]") %>% 
+        html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>% 
         html_attr("href") %>% 
         trimws() 
-      data_link <- paste0("https://ropercenter.cornell.edu", data_link)
+      data_links <- paste0("https://ropercenter.cornell.edu", data_links)
 
-      dl_data <- item_page %>% 
-        jump_to(data_link)
+      for (i in seq(data_links)) {
+        data_link <- data_links[[i]]
+        dl_data <- item_page %>% 
+          jump_to(data_link)
+        
+        if (length(data_links)==1) {
+          data_file <- paste0(item, ".por")
+        } else {
+          data_file <- item_page %>% 
+            read_html() %>% 
+            html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>%
+            nth(i) %>% 
+            html_text() %>%
+            trimws() %>% 
+            str_replace(" SPSS file", "") %>% 
+            str_replace_all("\\s", "_") %>% 
+            paste0(".por")
+        }
+        writeBin(httr::content(dl_data$response, "raw"), file.path(item_dir, data_file))
+
+        # convert data to .RData
+        if (convert == TRUE) {
+          x <- tryCatch(haven::read_por(file.path(item_dir, data_file)),
+            error = function(e) {
+              foreign::read.spss(file.path(item_dir, data_file),
+                                 to.data.frame = TRUE,
+                                 use.value.labels = FALSE)
+            })
+          save(x, file = stringr::str_replace(file.path(item_dir, data_file), "\\.por$", ".RData"))
+        }
+      }
       
-      data_file <- paste0(item, ".por")
-      writeBin(httr::content(dl_data$response, "raw"), file.path(item_dir, data_file))
-      
+      # get codebook
       pdf_link <- item_page %>% 
         read_html() %>% 
         html_node(xpath = "//a[contains(.,'PDF file')]") %>% 
@@ -119,17 +146,6 @@ roper_download <- function(file_id,
       
       pdf_file <- paste0(item, "_cb.pdf")
       writeBin(httr::content(dl_pdf$response, "raw"), file.path(item_dir, pdf_file))
-      
-      # convert data to .RData
-      if (convert == TRUE) {
-        x <- tryCatch(haven::read_por(file.path(item_dir, data_file)),
-          error = function(e) {
-            foreign::read.spss(file.path(item_dir, data_file),
-                               to.data.frame = TRUE,
-                               use.value.labels = FALSE)
-          })
-        save(x, file = stringr::str_replace(file.path(item_dir, data_file), ".por", ".RData"))
-      }
   }
 }  
 
