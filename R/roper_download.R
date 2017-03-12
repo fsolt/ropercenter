@@ -34,8 +34,8 @@
 #' @import rvest
 #' @importFrom httr content cookies set_cookies
 #' @importFrom xml2 read_html
-#' @importFrom dplyr '%>%' first
-#' @importFrom stringr str_replace
+#' @importFrom dplyr '%>%' first nth
+#' @importFrom stringr str_replace str_replace_all
 #' @importFrom haven read_por
 #' @importFrom foreign read.spss
 #' 
