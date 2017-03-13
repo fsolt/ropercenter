@@ -9,14 +9,16 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+The [Roper Center for Public Opinion Research](http://ropercenter.cornell.edu), in its own words, works "to collect, preserve, and disseminate public opinion data; to serve as a resource to help improve the practice of survey research; and to broaden the understanding of public opinion through the use of survey data in the United States and around the world."  It maintains the largest archive of public opinion data in existence, holding data dating back to the 1930s and from over 100 countries.  Researchers taking advantage of these datasets, however, are caught in a bind.  The terms and conditions for downloading any Roper Center dataset state that datasets "may not be resold or re-disseminated."[^1] But to ensure that one's work can be reproduced, assessed, and built upon by others, one must provide access to the raw data one employed.  
 
-The [Roper Center for Public Opinion Research](http://ropercenter.cornell.edu), in its own words, works "to collect, preserve, and disseminate public opinion data; to serve as a resource to help improve the practice of survey research; and to broaden the understanding of public opinion through the use of survey data in the United States and around the world."  It maintains the largest archive of public opinion data in existence, holding data dating back to the 1930s and from over 100 countries.  Researchers taking advantage of these datasets, however, are caught in a bind.  The terms and conditions for downloading any Roper Center dataset state that datasets "may not be resold or re-disseminated."[^1] But to ensure that one's work can be reproduced, assessed, and built upon by others, one must provide access to the raw data one employed.  The `ropercenter` package cuts this knot by providing programmatic, reproducible access to the Roper Center's datasets from within R. 
+The `ropercenter` package cuts this knot by providing programmatic, reproducible access to the Roper Center's datasets from within R for [registered users](https://ropercenter.cornell.edu/make-personalized-account/) at the Roper Center's [member institutions](https://ropercenter.cornell.edu/list-of-members/).  
+
+Please remember that by using Roper Center services, you accept all of the Center's [Terms and Conditions](https://ropercenter.cornell.edu/CFIDE/cf/action/registration/termsAndConditions.cfm).
+ 
 
 ## Setup
 
-`ropercenter` depends on the Firefox browser; if you do not have it installed, [get it here](https://www.mozilla.org/firefox).
-
-When used interactively, the `roper_download` function will be ask for the login information required by the Roper Center: the user's email and password. 
+When used interactively, the `roper_download` function will ask for the login information required by the Roper Center: the registered user's email and password. 
 After that information is input once, it will be entered automatically for any other download requests made in the same session.  To change this contact information within a session, one may set the argument `reset` to `TRUE` when running `roper_download` again, and the function will again request the required information. 
 
 An optional, but highly recommended, setup step is to add the information the Roper 
@@ -27,7 +29,7 @@ options("roper_email" = "juanita-herrera@uppermidwest.edu",
         "roper_password" = "password123!")
 ```
 
-The `roper_download` function will then access the information it needs to pass on to the Roper Center by default.  This means that researchers will not have to expose their info in their R scripts and that others reproducing their results later will be able to execute those R scripts without modification.  (They will, however, need to enter their own information into their own .Rprofiles, a detail that should be noted in the reproducibility materials to avoid confusion.)
+The `roper_download` function will then access the information it needs to pass on to the Roper Center by default.  This means that researchers will not have to expose their info in their R scripts and that others reproducing their results later---given that they have registered as users with the Roper Center---will be able to execute those R scripts without modification.  (They will, however, need to enter their own information either interactively or in their own .Rprofiles, a detail that should be noted in the reproducibility materials to avoid confusion.)
 
 
 ## Use
