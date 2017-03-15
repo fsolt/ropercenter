@@ -11,7 +11,7 @@ The `ropercenter` package cuts this knot by providing programmatic, reproducible
 
 To install:
 
-* the latest released version: `install.packages("ropercenter")` [once published on CRAN]
+* the latest released version: `install.packages("ropercenter")`
 * the latest development version:
 
 ```R
@@ -19,7 +19,7 @@ if (!require(ghit)) install.packages("ghit")
 ghit::install_github("fsolt/ropercenter")
 ```
 
-For more details, check out [the vignette](https://github.com/fsolt/ropercenter/blob/master/vignettes/ropercenter-vignette.Rmd)  [The vignette will be very slightly prettier and at [this link](https://cran.r-project.org/package=ropercenter/vignettes/ropercenter-vignette.html) after publication on CRAN].
+For more details, check out [the vignette](https://cran.r-project.org/package=ropercenter/vignettes/ropercenter-vignette.html).
 
 Please recall that by using Roper Center services, you accept the Center's [Terms and Conditions](https://ropercenter.cornell.edu/CFIDE/cf/action/registration/termsAndConditions.cfm).
 
