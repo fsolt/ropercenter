@@ -123,13 +123,16 @@ roper_download <- function(file_id,
 
         # convert data to .RData
         if (convert == TRUE) {
-          x <- tryCatch(haven::read_por(file.path(item_dir, data_file)),
+          tryCatch( 
+            {x <- tryCatch(haven::read_por(file.path(item_dir, data_file)),
             error = function(e) {
               foreign::read.spss(file.path(item_dir, data_file),
                                  to.data.frame = TRUE,
                                  use.value.labels = FALSE)
             })
-          save(x, file = stringr::str_replace(file.path(item_dir, data_file), "\\.por$", ".RData"))
+          save(x, file = stringr::str_replace(file.path(item_dir, data_file), "\\.por$", ".RData"))},
+          error = function(e) warning(paste("Conversion from .por to .RData failed for", item))
+          )
         }
       }
       
