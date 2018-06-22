@@ -81,7 +81,7 @@ roper_download <- function(file_id,
   
   # Loop through files
   walk(file_id, function(item) { 
-    if(msg) message("Downloading Roper Center file: ", item, sprintf(" (%s)", Sys.time()))
+    if (msg) message("Downloading Roper Center file: ", item, sprintf(" (%s)", Sys.time()))
     
     # create item directory
     item_dir <- file.path(download_dir, item)
@@ -99,41 +99,65 @@ roper_download <- function(file_id,
       html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>% 
       html_attr("href") %>% 
       trimws() 
+    if (identical(data_links, character(0))) {
+      data_links <- item_page %>% 
+        xml2::read_html() %>% 
+        html_nodes(xpath = "//a[contains(.,'ASCII file')]") %>% 
+        html_attr("href") %>% 
+        trimws()
+      spss <- FALSE
+      data_links0 <- data_links
+    } else {
+      spss <- TRUE
+    }
     data_links <- paste0("https://ropercenter.cornell.edu", data_links)
-    
-    walk(data_links, function(data_link) {
-      dl_data <- item_page %>% 
-        jump_to(data_link)
-      
-      if (length(data_links)==1) {
-        data_file <- paste0(item, ".por")
+
+    if (spss) { 
+      for (i in seq(data_links)) {
+        data_link <- data_links[i]
+        dl_data <- item_page %>% 
+          jump_to(data_link)
+        
+        if (length(data_links)==1) {
+          data_file <- paste0(item, ".por")
+        } else {
+          data_file <- item_page %>% 
+            xml2::read_html() %>% 
+            html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>%
+            nth(i) %>% 
+            html_text() %>%
+            trimws() %>% 
+            str_replace(" SPSS file", "") %>% 
+            str_replace_all("\\s", "_") %>% 
+            paste0(".por")
+        }
+        writeBin(httr::content(dl_data$response, "raw"), file.path(item_dir, data_file))
+        
+        # convert data to .RData
+        if (convert == TRUE) {
+          tryCatch( 
+            {x <- tryCatch(haven::read_por(file.path(item_dir, data_file)),
+                           error = function(e) {
+                             foreign::read.spss(file.path(item_dir, data_file),
+                                                to.data.frame = TRUE,
+                                                use.value.labels = FALSE)
+                           })
+            save(x, file = stringr::str_replace(file.path(item_dir, data_file), "\\.por$", ".RData"))},
+            error = function(e) warning(paste("Conversion from .por to .RData failed for", item))
+          )
+        }
+      }
+    } else {
+      if (identical(data_links0, character(0))) {
+        warning(paste("No SPSS or ASCII data file available for", item))
       } else {
-        data_file <- item_page %>% 
-          xml2::read_html() %>% 
-          html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>%
-          nth(i) %>% 
-          html_text() %>%
-          trimws() %>% 
-          str_replace(" SPSS file", "") %>% 
-          str_replace_all("\\s", "_") %>% 
-          paste0(".por")
+        dl_data <- item_page %>% 
+          jump_to(data_links[1])
+        
+        data_file <- paste0(item, ".dat")
+        writeBin(httr::content(dl_data$response, "raw"), file.path(item_dir, data_file))
       }
-      writeBin(httr::content(dl_data$response, "raw"), file.path(item_dir, data_file))
-      
-      # convert data to .RData
-      if (convert == TRUE) {
-        tryCatch( 
-          {x <- tryCatch(haven::read_por(file.path(item_dir, data_file)),
-                         error = function(e) {
-                           foreign::read.spss(file.path(item_dir, data_file),
-                                              to.data.frame = TRUE,
-                                              use.value.labels = FALSE)
-                         })
-          save(x, file = stringr::str_replace(file.path(item_dir, data_file), "\\.por$", ".RData"))},
-          error = function(e) warning(paste("Conversion from .por to .RData failed for", item))
-        )
-      }
-    })
+    }
     
     # get codebook
     pdf_link <- item_page %>% 
@@ -150,4 +174,3 @@ roper_download <- function(file_id,
     writeBin(httr::content(dl_pdf$response, "raw"), file.path(item_dir, pdf_file))
   })
 }  
-
