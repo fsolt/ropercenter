@@ -78,76 +78,76 @@ roper_download <- function(file_id,
   c0 <- httr::cookies(p0)$value
   names(c0) <- httr::cookies(p0)$name
   p1 <- suppressMessages(submit_form(session = p0, form = f0, config = httr::set_cookies(.cookies = c0)))
-      
+  
   # Loop through files
   walk(file_id, function(item) { 
-      if(msg) message("Downloading Roper Center file: ", item, sprintf(" (%s)", Sys.time()))
-
-      # create item directory
-      item_dir <- file.path(download_dir, item)
-      if (!dir.exists(item_dir)) dir.create(item_dir, recursive = TRUE)
-            
-      # build url
-      url <- paste0("http://ropercenter.cornell.edu/CFIDE/cf/action/catalog/abstract.cfm?type=&start=&id=&archno=", item, "&abstract=")
+    if(msg) message("Downloading Roper Center file: ", item, sprintf(" (%s)", Sys.time()))
+    
+    # create item directory
+    item_dir <- file.path(download_dir, item)
+    if (!dir.exists(item_dir)) dir.create(item_dir, recursive = TRUE)
+    
+    # build url
+    url <- paste0("http://ropercenter.cornell.edu/CFIDE/cf/action/catalog/abstract.cfm?type=&start=&id=&archno=", item, "&abstract=")
+    
+    # navigate to download page, get data
+    item_page <- p1 %>% 
+      jump_to(url) 
+    
+    data_links <- item_page %>% 
+      xml2::read_html() %>% 
+      html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>% 
+      html_attr("href") %>% 
+      trimws() 
+    data_links <- paste0("https://ropercenter.cornell.edu", data_links)
+    
+    walk(data_links, function(data_link) {
+      dl_data <- item_page %>% 
+        jump_to(data_link)
       
-      # navigate to download page, get data
-      item_page <- p1 %>% 
-        jump_to(url) 
+      if (length(data_links)==1) {
+        data_file <- paste0(item, ".por")
+      } else {
+        data_file <- item_page %>% 
+          xml2::read_html() %>% 
+          html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>%
+          nth(i) %>% 
+          html_text() %>%
+          trimws() %>% 
+          str_replace(" SPSS file", "") %>% 
+          str_replace_all("\\s", "_") %>% 
+          paste0(".por")
+      }
+      writeBin(httr::content(dl_data$response, "raw"), file.path(item_dir, data_file))
       
-      data_links <- item_page %>% 
-        xml2::read_html() %>% 
-        html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>% 
-        html_attr("href") %>% 
-        trimws() 
-      data_links <- paste0("https://ropercenter.cornell.edu", data_links)
-
-      walk(data_links, function(data_link) {
-        dl_data <- item_page %>% 
-          jump_to(data_link)
-        
-        if (length(data_links)==1) {
-          data_file <- paste0(item, ".por")
-        } else {
-          data_file <- item_page %>% 
-            xml2::read_html() %>% 
-            html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>%
-            nth(i) %>% 
-            html_text() %>%
-            trimws() %>% 
-            str_replace(" SPSS file", "") %>% 
-            str_replace_all("\\s", "_") %>% 
-            paste0(".por")
-        }
-        writeBin(httr::content(dl_data$response, "raw"), file.path(item_dir, data_file))
-
-        # convert data to .RData
-        if (convert == TRUE) {
-          tryCatch( 
-            {x <- tryCatch(haven::read_por(file.path(item_dir, data_file)),
-            error = function(e) {
-              foreign::read.spss(file.path(item_dir, data_file),
-                                 to.data.frame = TRUE,
-                                 use.value.labels = FALSE)
-            })
+      # convert data to .RData
+      if (convert == TRUE) {
+        tryCatch( 
+          {x <- tryCatch(haven::read_por(file.path(item_dir, data_file)),
+                         error = function(e) {
+                           foreign::read.spss(file.path(item_dir, data_file),
+                                              to.data.frame = TRUE,
+                                              use.value.labels = FALSE)
+                         })
           save(x, file = stringr::str_replace(file.path(item_dir, data_file), "\\.por$", ".RData"))},
           error = function(e) warning(paste("Conversion from .por to .RData failed for", item))
-          )
-        }
-      })
-      
-      # get codebook
-      pdf_link <- item_page %>% 
-        xml2::read_html() %>% 
-        html_node(xpath = "//a[contains(.,'PDF file')]") %>% 
-        html_attr("href") %>% 
-        trimws()
-      pdf_link <- paste0("https://ropercenter.cornell.edu", pdf_link)
-      
-      dl_pdf <- item_page %>% 
-        jump_to(pdf_link)
-      
-      pdf_file <- paste0(item, "_cb.pdf")
-      writeBin(httr::content(dl_pdf$response, "raw"), file.path(item_dir, pdf_file))
+        )
+      }
+    })
+    
+    # get codebook
+    pdf_link <- item_page %>% 
+      xml2::read_html() %>% 
+      html_node(xpath = "//a[contains(.,'PDF file')]") %>% 
+      html_attr("href") %>% 
+      trimws()
+    pdf_link <- paste0("https://ropercenter.cornell.edu", pdf_link)
+    
+    dl_pdf <- item_page %>% 
+      jump_to(pdf_link)
+    
+    pdf_file <- paste0(item, "_cb.pdf")
+    writeBin(httr::content(dl_pdf$response, "raw"), file.path(item_dir, pdf_file))
   })
 }  
 
