@@ -36,7 +36,6 @@
 #' @importFrom xml2 read_html
 #' @importFrom dplyr '%>%' first nth
 #' @importFrom stringr str_replace str_replace_all
-#' @importFrom purrr walk
 #' @importFrom haven read_por
 #' @importFrom foreign read.spss
 #' 
@@ -80,7 +79,8 @@ roper_download <- function(file_id,
   p1 <- suppressMessages(submit_form(session = p0, form = f0, config = httr::set_cookies(.cookies = c0)))
   
   # Loop through files
-  walk(file_id, function(item) { 
+  for (i in seq(file_id)) { 
+    item <- file_id[[i]]
     if (msg) message("Downloading Roper Center file: ", item, sprintf(" (%s)", Sys.time()))
     
     # create item directory
@@ -113,8 +113,8 @@ roper_download <- function(file_id,
     data_links <- paste0("https://ropercenter.cornell.edu", data_links)
 
     if (spss) { 
-      for (i in seq(data_links)) {
-        data_link <- data_links[i]
+      for (j in seq(data_links)) {
+        data_link <- data_links[[j]]
         dl_data <- item_page %>% 
           jump_to(data_link)
         
@@ -124,7 +124,7 @@ roper_download <- function(file_id,
           data_file <- item_page %>% 
             xml2::read_html() %>% 
             html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>%
-            nth(i) %>% 
+            nth(j) %>% 
             html_text() %>%
             trimws() %>% 
             str_replace(" SPSS file", "") %>% 
@@ -172,5 +172,5 @@ roper_download <- function(file_id,
     
     pdf_file <- paste0(item, "_cb.pdf")
     writeBin(httr::content(dl_pdf$response, "raw"), file.path(item_dir, pdf_file))
-  })
+  }
 }  
