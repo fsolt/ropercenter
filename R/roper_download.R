@@ -49,17 +49,17 @@ roper_download <- function(file_id,
                            convert = TRUE) {
   
   # detect login info
-  if (reset){
+  if (reset) {
     email <- password <- NULL
   }
   
-  if (is.null(email)){
+  if (is.null(email)) {
     roper_email <- readline(prompt = "The Roper Center requires your user account information.  Please enter your email address: \n")
     options("roper_email" = roper_email)
     email <- getOption("roper_email")
   }
   
-  if (is.null(password)){
+  if (is.null(password)) {
     roper_password <- readline(prompt = "Please enter your Roper Center password: \n")
     options("roper_password" = roper_password)
     password <- getOption("roper_password")
@@ -95,7 +95,7 @@ roper_download <- function(file_id,
         jump_to(url) 
       
       data_links <- item_page %>% 
-        read_html() %>% 
+        xml2::read_html() %>% 
         html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>% 
         html_attr("href") %>% 
         trimws() 
@@ -110,7 +110,7 @@ roper_download <- function(file_id,
           data_file <- paste0(item, ".por")
         } else {
           data_file <- item_page %>% 
-            read_html() %>% 
+            xml2::read_html() %>% 
             html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>%
             nth(i) %>% 
             html_text() %>%
@@ -138,7 +138,7 @@ roper_download <- function(file_id,
       
       # get codebook
       pdf_link <- item_page %>% 
-        read_html() %>% 
+        xml2::read_html() %>% 
         html_node(xpath = "//a[contains(.,'PDF file')]") %>% 
         html_attr("href") %>% 
         trimws()
