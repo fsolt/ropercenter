@@ -9,7 +9,7 @@
 #' @param var_positions A numeric vector of the column positions in which \code{var_names} are recorded.
 #' @param var_widths A numeric vector of the widths used to record \code{var_names}.
 #'
-#' @return A data frame containing the variables specified in the \code{var_names} argument, plus a numeric \code{respondent} identifier and as many string \code{card} variables (\code{card1}, \code{card2}, ...) as specified by the \code{total_cards} argument.
+#' @return A data frame containing any variables specified in the \code{var_names} argument, plus a numeric \code{respondent} identifier and as many string \code{card} variables (\code{card1}, \code{card2}, ...) as specified by the \code{total_cards} argument.
 #'
 #' @examples
 #' \dontrun{
@@ -36,22 +36,33 @@ read_ascii <- function(file,
                        var_widths) {
 
   . <- NULL   # satisfy R CMD check
-   
-  if (length(var_cards) == 1) {
+     
+  if (length(var_cards) == 1 & !missing(var_names)) {
     var_cards = rep(var_cards, length(var_names))
   }
-  
+
   df <- read_lines(file) %>%
     as_tibble() %>%
     mutate(card = paste0("card", rep_len(seq_len(total_cards), nrow(.))),
            respondent = rep(seq(to = nrow(.)/total_cards), each = total_cards)) %>%
     spread(key = "card", value = "value")
-  
-  for (i in seq_along(var_names)) {
-    card <- paste0("card", var_cards[i])
-    df[[var_names[i]]] <- parse_guess(str_replace(df[[card]], 
-                                      paste0("^.{", var_positions[i] - 1, "}(.{", var_widths[i], "}).*"),
-                                      "\\1"))
+
+  if (!missing(var_names)) {
+    if (missing(var_positions) | missing(var_widths)) {
+      stop("Variable positions and widths should also be given when variable names are specified", call. = FALSE)
+    } else if (length(unique(sapply(list(var_names, var_positions, var_widths), length))) > 1) {
+      stop("The lengths of the vectors of variable names, positions, and widths must be the same", call. = FALSE)
+    } else if ((max(var_cards) > max(total_cards))) {
+      stop("When reading a multi-card dataset, the numbers of the cards with variables to be read must not exceed the total number of cards.",
+           call. = FALSE)
+    }
+    
+    for (i in seq_along(var_names)) {
+      card <- paste0("card", var_cards[i])
+      df[[var_names[i]]] <- parse_guess(str_replace(df[[card]],
+                                                    paste0("^.{", var_positions[i] - 1, "}(.{", var_widths[i], "}).*"),
+                                                    "\\1"))
+    }
   }
   
   return(df)
