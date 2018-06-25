@@ -26,7 +26,8 @@
 #' @import rvest
 #' @importFrom readr read_lines
 #' @importFrom tibble as_tibble
-#' @importFrom dplyr '%>%' mutate spread
+#' @importFrom dplyr '%>%' mutate 
+#' @importFrom tidyr spread
 #' @importFrom stringr str_extract str_replace
 #' 
 #' @export
