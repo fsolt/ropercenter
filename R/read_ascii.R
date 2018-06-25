@@ -1,6 +1,6 @@
-#' Read ASCII datasets from the Roper Center
+#' Read ASCII datasets downloaded from the Roper Center
 #'
-#' \code{read_ascii} does stuff
+#' \code{read_ascii} helps format ASCII data files downloaded from the Roper Center.
 #'
 #' @param file A path to an ASCII data file.
 #' @param total_cards For multicard files, the number of cards in the file.
@@ -8,7 +8,6 @@
 #' @param var_cards For multicard files, a numeric vector of the cards on which \code{var_names} are recorded.
 #' @param var_positions A numeric vector of the column positions in which \code{var_names} are recorded.
 #' @param var_widths A numeric vector of the widths used to record \code{var_names}.
-#' @param card_pattern For use when the file does not contain a line for every card for every respondent, a regular expression that matches the file's card identifier; e.g., if the card number is stored in the last digit of the line, "\\d$".
 #'
 #' @details 
 #'
@@ -16,7 +15,7 @@
 #'
 #' @examples
 #' \dontrun{
-#'  read_ascii(file = "roper_data/USAIPOGNS1992-222054/USAIPOGNS1992-222054.dat",
+#' gallup9206 <- read_ascii(file = "roper_data/USAIPOGNS1992-222054/USAIPOGNS1992-222054.dat",
 #'    total_cards = 4,
 #'    var_names = c("q24", "weight"),
 #'    var_cards = c(4, 1),
