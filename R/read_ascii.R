@@ -35,8 +35,7 @@ read_ascii <- function(file,
                        var_names,
                        var_cards = 1,
                        var_positions,
-                       var_widths,
-                       card_pattern) {
+                       var_widths) {
   
   if (length(var_cards) == 1) {
     var_cards = rep(var_cards, length(var_names))
