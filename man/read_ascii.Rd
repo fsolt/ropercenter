@@ -5,7 +5,7 @@
 \title{Read ASCII datasets downloaded from the Roper Center}
 \usage{
 read_ascii(file, total_cards = 1, var_names, var_cards = 1, var_positions,
-  var_widths)
+  var_widths, card_pattern, respondent_pattern)
 }
 \arguments{
 \item{file}{A path to an ASCII data file.}
@@ -19,9 +19,13 @@ read_ascii(file, total_cards = 1, var_names, var_cards = 1, var_positions,
 \item{var_positions}{A numeric vector of the column positions in which \code{var_names} are recorded.}
 
 \item{var_widths}{A numeric vector of the widths used to record \code{var_names}.}
+
+\item{card_pattern}{For use when the file does not contain a line for every card for every respondent (or contains extra lines that correspond to no respondent), a regular expression that matches the file's card identifier; e.g., if the card number is stored in the last digit of each line, "\\d$".}
+
+\item{respondent_pattern}{For use when the file does not contain a line for every card for every respondent (or contains extra lines that correspond to no respondent), a regular expression that matches the file's respondent identifier; e.g., if the respondent number is stored in the first four digits of each line, preceded by a space, "(?<=^\\s)\\d{4}".}
 }
 \value{
-A data frame containing the variables specified in the \code{var_names} argument, plus a numeric \code{respondent} identifier and as many string \code{card} variables (\code{card1}, \code{card2}, ...) as specified by the \code{total_cards} argument.
+A data frame containing any variables specified in the \code{var_names} argument, plus a numeric \code{respondent} identifier and as many string \code{card} variables (\code{card1}, \code{card2}, ...) as specified by the \code{total_cards} argument.
 }
 \description{
 \code{read_ascii} helps format ASCII data files downloaded from the Roper Center.

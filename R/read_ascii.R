@@ -25,7 +25,7 @@
 #' 
 #' @importFrom readr read_lines parse_guess
 #' @importFrom tibble as_tibble
-#' @importFrom dplyr '%>%' mutate 
+#' @importFrom dplyr '%>%' mutate filter
 #' @importFrom tidyr spread
 #' @importFrom stringr str_extract str_replace
 #' 
