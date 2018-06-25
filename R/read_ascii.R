@@ -8,6 +8,8 @@
 #' @param var_cards For multicard files, a numeric vector of the cards on which \code{var_names} are recorded.
 #' @param var_positions A numeric vector of the column positions in which \code{var_names} are recorded.
 #' @param var_widths A numeric vector of the widths used to record \code{var_names}.
+#' @param card_pattern For use when the file does not contain a line for every card for every respondent (or contains extra lines that correspond to no respondent), a regular expression that matches the file's card identifier; e.g., if the card number is stored in the last digit of each line, "\\d$".
+#' @param respondent_pattern For use when the file does not contain a line for every card for every respondent (or contains extra lines that correspond to no respondent), a regular expression that matches the file's respondent identifier; e.g., if the respondent number is stored in the first four digits of each line, preceded by a space, "(?<=^\\s)\\d{4}".
 #'
 #' @return A data frame containing any variables specified in the \code{var_names} argument, plus a numeric \code{respondent} identifier and as many string \code{card} variables (\code{card1}, \code{card2}, ...) as specified by the \code{total_cards} argument.
 #'
@@ -33,19 +35,34 @@ read_ascii <- function(file,
                        var_names,
                        var_cards = 1,
                        var_positions,
-                       var_widths) {
+                       var_widths,
+                       card_pattern,
+                       respondent_pattern) {
 
   . <- NULL   # satisfy R CMD check
      
+  if ((length(read_lines(file)) %% total_cards) != 0 & (missing(card_pattern) | missing(respondent_pattern))) {
+    stop("The number of lines in the file is not a multiple of the number of cards in the file.  Please specify card_pattern and respondent_pattern", call. = FALSE)
+  }
+  
   if (length(var_cards) == 1 & !missing(var_names)) {
     var_cards = rep(var_cards, length(var_names))
   }
 
-  df <- read_lines(file) %>%
-    as_tibble() %>%
-    mutate(card = paste0("card", rep_len(seq_len(total_cards), nrow(.))),
-           respondent = rep(seq(to = nrow(.)/total_cards), each = total_cards)) %>%
-    spread(key = "card", value = "value")
+  if (missing(card_pattern)) {
+    df <- read_lines(file) %>%
+      as_tibble() %>%
+      mutate(card = paste0("card", rep_len(seq_len(total_cards), nrow(.))),
+             respondent = rep(seq(to = nrow(.)/total_cards), each = total_cards)) %>%
+      spread(key = "card", value = "value")
+  } else {
+    df <- read_lines(file) %>%
+      as_tibble() %>% 
+      mutate(card = paste0("card", str_extract(value, card_pattern))) %>% 
+      filter(!card == "cardNA") %>% 
+      mutate(respondent = str_extract(value, respondent_pattern)) %>%
+      spread(key = "card", value = "value")
+  }
 
   if (!missing(var_names)) {
     if (missing(var_positions) | missing(var_widths)) {
