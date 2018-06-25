@@ -53,7 +53,7 @@ read_ascii <- function(file,
     } else if (length(unique(sapply(list(var_names, var_positions, var_widths), length))) > 1) {
       stop("The lengths of the vectors of variable names, positions, and widths must be the same", call. = FALSE)
     } else if ((max(var_cards) > max(total_cards))) {
-      stop("When reading a multi-card dataset, the numbers of the cards with variables to be read must not exceed the total number of cards.",
+      stop("When reading a multi-card dataset, the numbers of the cards with variables to be read must not be greater than the total number of cards",
            call. = FALSE)
     }
     
