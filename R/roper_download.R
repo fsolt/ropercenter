@@ -132,6 +132,7 @@ roper_download <- function(file_id,
             paste0(".por")
         }
         writeBin(httr::content(dl_data$response, "raw"), file.path(item_dir, data_file))
+        if (length(file_id) > 3) Sys.sleep(5)
         
         # convert data to .RData
         if (convert == TRUE) {
@@ -156,6 +157,7 @@ roper_download <- function(file_id,
         
         data_file <- paste0(item, ".dat")
         writeBin(httr::content(dl_data$response, "raw"), file.path(item_dir, data_file))
+        if (length(file_id) > 3) Sys.sleep(5)
       }
     }
     
