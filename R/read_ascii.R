@@ -23,7 +23,7 @@
 #'    var_widths = c(1, 3))
 #' }
 #' 
-#' @importFrom readr read_lines
+#' @importFrom readr read_lines parse_guess
 #' @importFrom tibble as_tibble
 #' @importFrom dplyr '%>%' mutate 
 #' @importFrom tidyr spread
@@ -49,9 +49,9 @@ read_ascii <- function(file,
   
   for (i in seq_along(var_names)) {
     card <- paste0("card", var_cards[i])
-    df[[var_names[i]]] <- as.numeric(str_replace(df[[card]], 
-                                                 paste0("^.{", var_positions[i] - 1, "}(.{", var_widths[i], "}).*"),
-                                                 "\\1"))
+    df[[var_names[i]]] <- parse_guess(str_replace(df[[card]], 
+                                      paste0("^.{", var_positions[i] - 1, "}(.{", var_widths[i], "}).*"),
+                                      "\\1"))
   }
   
   return(df)
