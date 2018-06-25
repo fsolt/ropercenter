@@ -9,8 +9,6 @@
 #' @param var_positions A numeric vector of the column positions in which \code{var_names} are recorded.
 #' @param var_widths A numeric vector of the widths used to record \code{var_names}.
 #'
-#' @details 
-#'
 #' @return A data frame containing the variables specified in the \code{var_names} argument, plus a numeric \code{respondent} identifier and as many string \code{card} variables (\code{card1}, \code{card2}, ...) as specified by the \code{total_cards} argument.
 #'
 #' @examples
@@ -36,7 +34,9 @@ read_ascii <- function(file,
                        var_cards = 1,
                        var_positions,
                        var_widths) {
-  
+
+  . <- NULL   # satisfy R CMD check
+   
   if (length(var_cards) == 1) {
     var_cards = rep(var_cards, length(var_names))
   }
