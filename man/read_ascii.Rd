@@ -26,9 +26,6 @@ A data frame containing the variables specified in the \code{var_names} argument
 \description{
 \code{read_ascii} helps format ASCII data files downloaded from the Roper Center.
 }
-\details{
-
-}
 \examples{
 \dontrun{
 gallup9206 <- read_ascii(file = "roper_data/USAIPOGNS1992-222054/USAIPOGNS1992-222054.dat",

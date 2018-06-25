@@ -30,5 +30,8 @@ Imports:
   dplyr,
   stringr,
   haven,
-  foreign
+  foreign,
+  tibble,
+  tidyr,
+  readr
 RoxygenNote: 6.0.1
