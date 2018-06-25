@@ -12,7 +12,7 @@
 #'
 #' @details 
 #'
-#' @return A data frame containing the variables specified in the \code{var_names} argument, plus a \code{respondent} identifier and as many \code{card} variables (\code{card1}, \code{card2}, ...) as specified by the \code{total_cards} argument.
+#' @return A data frame containing the variables specified in the \code{var_names} argument, plus a numeric \code{respondent} identifier and as many string \code{card} variables (\code{card1}, \code{card2}, ...) as specified by the \code{total_cards} argument.
 #'
 #' @examples
 #' \dontrun{
@@ -43,29 +43,18 @@ read_ascii <- function(file,
     var_cards = rep(var_cards, length(var_names))
   }
   
-  df0 <- read_lines(file) %>%
-    as_tibble() 
-  
-  if (missing(card_pattern)) {
-    df1 <- df0 %>%
-      mutate(card = paste0("card", rep_len(seq_len(total_cards), nrow(.))),
-             respondent = rep(seq(to = nrow(.)/total_cards), each = total_cards))
-  } else {
-    df1 <- df0 %>% 
-      mutate(card = paste0("card", str_extract(value, card_pattern)),
-             respondent = rep(seq(to = nrow(.)/total_cards), each = total_cards))
-    
-  }
-  
-  df2 <- df1 %>%
+  df <- read_lines(file) %>%
+    as_tibble() %>%
+    mutate(card = paste0("card", rep_len(seq_len(total_cards), nrow(.))),
+           respondent = rep(seq(to = nrow(.)/total_cards), each = total_cards)) %>%
     spread(key = "card", value = "value")
   
   for (i in seq_along(var_names)) {
     card <- paste0("card", var_cards[i])
-    df2[[var_names[i]]] <- as.numeric(gsub(df2[[card]], 
-                                           paste0("^.{", var_positions[i] - 1, "}(.{", var_widths[i], "}).*"),
-                                           "\\1"))
+    df[[var_names[i]]] <- as.numeric(str_replace(df[[card]], 
+                                                 paste0("^.{", var_positions[i] - 1, "}(.{", var_widths[i], "}).*"),
+                                                 "\\1"))
   }
   
-  return(df2)
+  return(df)
 }
