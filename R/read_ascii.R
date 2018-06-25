@@ -23,7 +23,6 @@
 #'    var_widths = c(1, 3))
 #' }
 #' 
-#' @import rvest
 #' @importFrom readr read_lines
 #' @importFrom tibble as_tibble
 #' @importFrom dplyr '%>%' mutate 
