@@ -39,7 +39,7 @@ read_ascii <- function(file,
                        card_pattern,
                        respondent_pattern) {
 
-  . <- NULL   # satisfy R CMD check
+  . <- value <- NULL   # satisfy R CMD check
      
   if ((length(read_lines(file)) %% total_cards) != 0 & (missing(card_pattern) | missing(respondent_pattern))) {
     stop("The number of lines in the file is not a multiple of the number of cards in the file.  Please specify card_pattern and respondent_pattern", call. = FALSE)
