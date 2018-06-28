@@ -78,7 +78,8 @@ read_ascii <- function(file,
       card <- paste0("card", var_cards[i])
       df[[var_names[i]]] <- parse_guess(str_replace(df[[card]],
                                                     paste0("^.{", var_positions[i] - 1, "}(.{", var_widths[i], "}).*"),
-                                                    "\\1"))
+                                                    "\\1") %>% 
+                                          str_replace("^\\s+$", ""))
     }
   }
   
