@@ -33,7 +33,7 @@ The `roper_download` function will then access the information it needs to pass 
 
 
 ## Use
-The `roper_download` function (1) simulates a visit to the Roper Center's sign-in page, (2) enters the required information to sign in, (3) navigates to a specified dataset and downloads the dataset's files, and, optionally but by default, (4) converts the dataset's files to `.Rdata` format.
+The `roper_download` function (1) simulates a visit to the Roper Center's sign-in page, (2) enters the required information to sign in, (3) navigates to a specified dataset and downloads the dataset's files, and, optionally but by default, (4) converts the dataset's SPSS-formated files to `.Rdata` format.
 
 Datasets are specified using the `file_id` argument.  The Roper Center uses a unique number to identify each of its datasets; this number is consistently listed alongside the dataset's name.  For this [CNN/ORC poll on the 2016 presidential election](https://ropercenter.cornell.edu/CFIDE/cf/action/catalog/abstract.cfm?type=&start=&id=&archno=USORCCNN2015-010&abstract=), for example, the file id is USORCCNN2015-010:
 
@@ -51,10 +51,46 @@ Multiple datasets may be downloaded from the same research area in a single comm
 roper_download(file_id = c("USORCCNN2015-010", "USORCCNN2015-009", "USORCCNN2015-008"))
 ```
 
-After the needed datasets are downloaded, they are, by default, converted to `.RData` format (via `haven::read_por` if possible, `foreign::read.spss` otherwise) and ready to be loaded into R using `load()` or `rio::import()`.
+After the needed datasets are downloaded, if they are in SPSS format, they are by default converted to `.RData` format (via `haven::read_por` if possible, `foreign::read.spss` otherwise) and ready to be loaded into R using `load()` or `rio::import()`.
 
 ```{r eval=FALSE}
 orccnn2015_010 <- rio::import("roper_data/USORCCNN2015-010/USORCCNN2015-010.RData")
+```
+
+If no SPSS-formatted dataset is available, the `.dat` ASCII file is downloaded.
+The next section describes how to use `read_ascii` to make this data usable.
+
+## Advanced Use: ASCII Datasets
+Many older Roper Center datasets are available only in ASCII format, which is notoriously difficult to work with.
+The `read_ascii` function facilitates the process of extracting selected variables from ASCII datasets.
+For single-card files, such as this Gallup Poll from June 1982, one can simply identify the names, positions, and widths of the needed variables from the codebook and pass them to `read_ascii`'s `var_names`, `var_positions`, and `var_widths` arguments.
+The resulting data frame will include these variables plus a variable for the respondent id number and one that encodes the raw data as a single string.
+
+```{r eval=FALSE}
+roper_download("USAIPO1982-1197G")            # Gallup Poll for June 25-28, 1982 (ASCII only)
+gallup1982 <- read_ascii(file = "roper_data/USAIPO1982-1197G/USAIPO1982-1197G.dat",
+                         var_names = c("q09j", "weight"),
+                         var_positions = c(38, 1),
+                         var_widths = c(1, 1))
+```
+
+Multicard datasets are more complicated.
+In the best case, the file contains one line per card per respondent; then, the user can extract the needed variables by adding only the `var_cards` and `total_cards` arguments.
+When this condition is violated---there is not a line for every card for every respondent, or there are extra lines---the `read_ascii` function will throw an error and request the additional arguments `card_pattern` and `respondent_pattern`.
+These take regular expressions that match the card and respondent identifiers on each line in the original file (note that look-behind assertions are often particularly handy for constructing these regexs).
+Either way, the resulting data frame will include the variables specified in the `var_` arguments, a variable for the respondent id number, and as many additional variables as cards in the file, each of which encodes the raw data on that card as a single string.
+
+```{r eval=FALSE}
+library(ropercenter)
+roper_download("USAIPOCNUS1996-9603008")      # Gallup/CNN/USA Today Poll: Politics/1996 Election (ASCII only)
+gallup1996 <- read_ascii(file = "roper_data/USAIPOCNUS1996-9603008/USAIPOCNUS1996-9603008.dat",
+                         var_names = c("q43a", "q44", "weight"),
+                         var_cards = c(6, 6, 1),
+                         var_positions = c(62, 64, 13),
+                         var_widths = c(1, 1, 3),
+                         total_cards = 7,
+                         card_pattern = "(?<=^.{10})\\d",
+                         respondent_pattern = "(?<=^\\s{2})\\d{4}")
 ```
 
 [^1]: The terms _do_ include the exception that "researchers who are actively collaborating with individuals at non-member institutions may provide a copy of relevant data sets to their collaborators solely for their private use in connection with and for the duration of the project, after which they will return or destroy such material," but the limitation to active collaboration renders this inadequate for the public provision of materials for reproducibility.
