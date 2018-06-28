@@ -15,8 +15,8 @@ To install:
 * the latest development version:
 
 ```R
-if (!require(ghit)) install.packages("ghit")
-ghit::install_github("fsolt/ropercenter")
+if (!require(remotes)) install.packages("remotes")
+remotes::install_github("fsolt/ropercenter")
 ```
 
 For more details, check out [the vignette](https://cran.r-project.org/package=ropercenter/vignettes/ropercenter-vignette.html).
