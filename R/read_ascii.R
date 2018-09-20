@@ -93,6 +93,7 @@ read_ascii <- function(file,
                                                     paste0("^.{", var_positions[i] - 1, "}(.{", var_widths[i], "}).*"),
                                                     "\\1") %>% 
                                           str_replace("^\\s+$", ""))
+      is.na(df[[var_names[i]]]) <- which(!nchar(df[[var_names[i]]]) == var_widths[i])
     }
   }
   
