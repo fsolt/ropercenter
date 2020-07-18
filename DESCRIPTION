@@ -28,7 +28,7 @@ VignetteBuilder: knitr
 Imports:
   RSelenium,
   dplyr,
-  foriegn,
+  foreign,
   haven,
   magrittr,
   readr,
