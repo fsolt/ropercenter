@@ -148,11 +148,6 @@ roper_download <- function(file_id,
         while(all.equal(stringr::str_detect(dd_new, "\\.part$"), logical(0))) { # has download started?
           Sys.sleep(1)
           dd_new <- setdiff(list.files(default_dir), new_dd_old)
-          if (wait > delay * 2) {
-            element <- remDr$findElement(using = "css", download_links[j])
-            remDr$executeScript("arguments[0].scrollIntoView(true);", args = list(element))
-            Sys.sleep(1)
-          }
         }, error = function(e) 1
       )
       while(any(stringr::str_detect(dd_new, "\\.crdownload$"))) { # has download finished?
