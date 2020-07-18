@@ -19,8 +19,8 @@ if (!require(remotes)) install.packages("remotes")
 remotes::install_github("fsolt/ropercenter")
 ```
 
-For more details, check out [the vignette](https://cran.r-project.org/package=ropercenter/vignettes/ropercenter-vignette.html).
+For more details, check out [the vignette](https://fsolt.org/ropercenter/articles/ropercenter-vignette.html).
 
-Please recall that by using Roper Center services, you accept the Center's [Terms and Conditions](https://ropercenter.cornell.edu/CFIDE/cf/action/registration/termsAndConditions.cfm).
+Please recall that by using Roper Center services, you accept the Center's [Terms and Conditions](https://ropercenter.cornell.edu/roper-center-data-archive-terms-and-conditions).
 
 
