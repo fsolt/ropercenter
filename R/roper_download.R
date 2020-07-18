@@ -60,6 +60,8 @@ roper_download <- function(file_id,
                            delay = 2) {
   . <- NULL # satisfy CRAN check
   
+  file_id <- as.character(file_id)
+  
   # detect login info
   if (reset) {
     affiliation <- email <- password <- NULL
