@@ -20,7 +20,7 @@
 #' @examples
 #' \dontrun{
 #' # a single-card file
-#' roper_download("USAIPO1982-1197G", # Gallup Poll for June 25-28, 1982 (ASCII only)
+#' roper_download("USAIPO1982-1197G", # Gallup Poll for June 25-28, 1982
 #'                download_dir = tempdir())  # remember to specify a directory for your download
 #'                       
 #' gallup1982 <- read_ascii(file = file.path(tempdir(), "USAIPO1982-1197G",
@@ -29,8 +29,9 @@
 #'                          var_positions = c(38, 1),
 #'                          var_widths = c(1, 1))
 #'    
-#' # a multi-card file, with extra lines that make the card_pattern and respondent_pattern arguments necessary
-#' roper_download("USAIPOCNUS1996-9603008", # Gallup/CNN/USA Today Poll: Politics/1996 Election (ASCII only)
+#' # a multi-card file, with extra lines that make the card_pattern and
+#'   respondent_pattern arguments necessary
+#' roper_download("USAIPOCNUS1996-9603008", # Gallup/CNN/USA Today Poll: Politics/1996 Election
 #'                download_dir = tempdir())  # remember to specify a directory for your download
 #' 
 #' gallup1996 <- read_ascii(file = file.path(tempdir(), "USAIPOCNUS1996-9603008",
@@ -40,8 +41,12 @@
 #'                          var_positions = c(62, 64, 13),
 #'                          var_widths = c(1, 1, 3),
 #'                          total_cards = 7,
-#'                          card_pattern = "(?<=^.{10})\\d", # a digit, preceded by the start of the line and ten other characters
-#'                          respondent_pattern = "(?<=^\\s{2})\\d{4}") # four digits, preceded by the start of the line and two whitespace characters
+#'                          card_pattern = "(?<=^.{10})\\d", 
+#'                                         # (a digit, preceded by the start of the line
+#'                                         # and ten other characters)
+#'                          respondent_pattern = "(?<=^\\s{2})\\d{4}")
+#'                                        # (# four digits, preceded by the start of the line
+#'                                        # and two whitespace characters)
 #' }
 #' 
 #' @importFrom readr read_lines parse_guess
