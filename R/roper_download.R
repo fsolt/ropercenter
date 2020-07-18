@@ -1,56 +1,73 @@
 #' Download datasets from the Roper Center
 #'
-#' \code{roper_download} provides a programmatic and reproducible means to download datasets 
-#'   from the Roper Center's data archive
+#' \code{roper_download} provides a programmatic and reproducible means to download  
+#'   datasets from the Roper Center's data archive
 #'
 #' @param file_id The unique identifier (or optionally a vector of these identifiers)
-#'  for the dataset(s) to be downloaded (see details).
-#' @param email,password Your Roper Center email and password (see details)
-#' @param reset If TRUE, you will be asked to re-enter your Roper Center email and password.
+#'   for the dataset(s) to be downloaded (see details).  Both new Archive Numbers and old
+#'   Historical Archive Numbers, if the latter are available, may be used.  
+#' @param affiliation,email,password Your Roper Center affiliation, email, and password 
+#'   (see details)
+#' @param reset If TRUE, you will be asked to re-enter your Roper Center affiliation, 
+#'   email, and password.
 #' @param download_dir The directory (relative to your working directory) to
 #'   which files from the Roper Center will be downloaded.
 #' @param msg If TRUE, outputs a message showing which data set is being downloaded.
 #' @param convert If TRUE, converts downloaded file(s) to .RData format.
-#'
+#' @param delay If the speed of your connection to the Roper Center data archive is particularly slow, 
+#'   \code{roper_download} may encounter problems.  Increasing the \code{delay} parameter
+#'   may help.
+#'   
 #' @details 
-#'  To avoid requiring others to edit your scripts to insert their own email and  
-#'  password or to force them to do so interactively, the default is set to fetch 
-#'  this information from the user's .Rprofile.  Before running \code{roper_download}, 
-#'  then, you should be sure to add these options to your .Rprofile substituting your 
-#'  info for the example below:
+#'  To avoid requiring others to edit your scripts to insert their own affiliation, 
+#'  email, and password or to force them to do so interactively, the default is set 
+#'  to fetch this information from the user's .Rprofile.  Before running 
+#'  \code{roper_download}, then, you should be sure to add these options to your 
+#'  .Rprofile (\code{usethis::edit_r_profile()} is one particularly easy way),
+#'  substituting your own info for the example below:
 #'
 #'  \code{
-#'   options("roper_email" = "juanita-herrara@uppermidwest.edu",
-#'          "roper_password" = "password123!")
+#'   options("roper_affiliation" = "Upper Midwest University",
+#'           "roper_email" = "juanita-herrara@uppermidwest.edu",
+#'           "roper_password" = "password123!")
 #'  }
 #'
-#' @return The function returns downloaded files.
+#' @return The function returns nothing, but has the side effect of downloading
+#' all files of the datasets identified in the file_id argument.
 #'
 #' @examples
 #' \dontrun{
-#'  roper_download(file_id = c("CNCIPO1996-96010", "CNCIPO2000-02"))
+#'  roper_download(file_id = c("31117412", "USPEW2015-GOVERNANCE"),
+#'                 download_dir = tempdir()) # remember to specify a directory for your download
 #' }
 #' 
-#' @import rvest
-#' @importFrom httr content cookies set_cookies
-#' @importFrom xml2 read_html
-#' @importFrom dplyr '%>%' first nth
-#' @importFrom stringr str_replace str_replace_all
-#' @importFrom haven read_por
+#' @import RSelenium
+#' @importFrom stringr str_detect str_subset str_replace str_extract_all
+#' @importFrom magrittr '%>%'
+#' @importFrom rio export
+#' @importFrom haven read_dta read_por
 #' @importFrom foreign read.spss
 #' 
 #' @export
-roper_download <- function(file_id, 
+roper_download <- function(file_id,
+                           affiliation = getOption("roper_affiliation"),
                            email = getOption("roper_email"),
                            password = getOption("roper_password"),
                            reset = FALSE,
                            download_dir = "roper_data",
                            msg = TRUE,
-                           convert = TRUE) {
+                           convert = TRUE,
+                           delay = 2) {
   
   # detect login info
   if (reset) {
-    email <- password <- NULL
+    affiliation <- email <- password <- NULL
+  }
+  
+  if (is.null(affiliation)) {
+    roper_affiliation <- readline(prompt = "The Roper Center requires your user account information.  Please enter the member organization that you are affiliated with: \n")
+    options("roper_affiliation" = roper_affiliation)
+    affiliation <- getOption("roper_affiliation")
   }
   
   if (is.null(email)) {
@@ -65,114 +82,122 @@ roper_download <- function(file_id,
     password <- getOption("roper_password")
   }
   
-  # enter username and password
-  signin <- "http://ropercenter.cornell.edu/CFIDE/cf/action/login/signin.cfm"
-  p0 <- html_session(signin)
+  # build path to chrome's default download directory
+  if (Sys.info()[["sysname"]]=="Linux") {
+    default_dir <- file.path("home", Sys.info()[["user"]], "Downloads")
+  } else {
+    default_dir <- file.path("", "Users", Sys.info()[["user"]], "Downloads")
+  }
   
-  f0 <- html_form(p0) %>%
-    first() %>% 
-    set_values("username" = email,
-               "password" = password)
+  # create specified download directory if necessary
+  if (!dir.exists(download_dir)) dir.create(download_dir, recursive = TRUE)
   
-  c0 <- httr::cookies(p0)$value
-  names(c0) <- httr::cookies(p0)$name
-  p1 <- suppressMessages(submit_form(session = p0, form = f0, config = httr::set_cookies(.cookies = c0)))
+  # initialize driver
+  if (msg) message("Initializing RSelenium driver")
+  rD <- RSelenium::rsDriver(browser = "chrome", verbose = TRUE)
+  remDr <- rD[["client"]]
+  
+  # sign in
+  signin <- "https://ropercenter.cornell.edu/ipoll/login"
+  remDr$navigate(signin)
+  Sys.sleep(delay)
+  if (try(unlist(remDr$findElement(using = "class", "accept-container")$getElementAttribute('id')), silent = TRUE) == "") { # check for cookies pop-up
+    remDr$findElement(using = "class", "accept-container")$clickElement() # accept cookies 
+  }
+  remDr$findElement(using = "id", "react-select-2-input")$sendKeysToElement(list(affiliation, key = "enter"))
+  remDr$findElement(using = "id", "username")$sendKeysToElement(list(email))
+  remDr$findElement(using = "id", "password")$sendKeysToElement(list(password))
+  remDr$findElement(using = "css", ".btn-primary")$clickElement()
+  Sys.sleep(delay)
   
   # Loop through files
   for (i in seq(file_id)) { 
     item <- file_id[[i]]
     if (msg) message("Downloading Roper Center file: ", item, sprintf(" (%s)", Sys.time()))
     
-    # create item directory
-    item_dir <- file.path(download_dir, item)
-    if (!dir.exists(item_dir)) dir.create(item_dir, recursive = TRUE)
+    # get list of current default download directory contents
+    dd_old <- list.files(default_dir)
     
-    # build url
-    url <- paste0("http://ropercenter.cornell.edu/CFIDE/cf/action/catalog/abstract.cfm?type=&start=&id=&archno=", item, "&abstract=")
+    # navigate to study page
+    url <- paste0("https://ropercenter.cornell.edu/ipoll/study/", item)
+    remDr$navigate(url)
+    Sys.sleep(delay)
     
-    # navigate to download page, get data
-    item_page <- p1 %>% 
-      jump_to(url) 
+    # switch to download tab
+    remDr$findElement(using = "css", "#download-tab")$clickElement()
     
-    data_links <- item_page %>% 
-      xml2::read_html() %>% 
-      html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>% 
-      html_attr("href") %>% 
-      trimws() 
-    if (identical(data_links, character(0))) {
-      data_links <- item_page %>% 
-        xml2::read_html() %>% 
-        html_nodes(xpath = "//a[contains(.,'ASCII file')]") %>% 
-        html_attr("href") %>% 
-        trimws()
-      spss <- FALSE
-      data_links0 <- data_links
-    } else {
-      spss <- TRUE
+    download_links <- remDr$getPageSource()[[1]] %>% 
+      # stringr::str_replace("Reports, Data Tables.*", "") %>% 
+      stringr::str_extract_all('rc-download-btn[^"]*') %>% 
+      `[[`(1) %>% 
+      paste0("#", .)
+    
+    # download all files
+    for (j in seq_along(download_links)) {
+      new_dd_old <- list.files(default_dir)
+      remDr$findElement(using = "css", download_links[j])$clickElement() # initiate data download
+      Sys.sleep(delay * .61)
+      
+      if (try(unlist(remDr$findElement(using = "css", "#rc-downloads-tc-modal-accept-btn")$getElementAttribute('id')), silent = TRUE) == "rc-downloads-tc-modal-accept-btn") { # check for terms pop-up
+        remDr$findElement(using = "css", "#rc-downloads-tc-modal-accept-btn")$clickElement() # accept terms 
+      }
+      
+      # check that download has completed
+      dd_new <- setdiff(list.files(default_dir), new_dd_old)
+      tryCatch(
+        while(all.equal(stringr::str_detect(dd_new, "\\.part$"), logical(0))) { # has download started?
+          Sys.sleep(1)
+          dd_new <- setdiff(list.files(default_dir), new_dd_old)
+          if (wait > delay * 2) {
+            element <- remDr$findElement(using = "css", download_links[j])
+            remDr$executeScript("arguments[0].scrollIntoView(true);", args = list(element))
+            Sys.sleep(1)
+          }
+        }, error = function(e) 1
+      )
+      while(any(stringr::str_detect(dd_new, "\\.crdownload$"))) { # has download finished?
+        Sys.sleep(1)
+        dd_new <- setdiff(list.files(default_dir), new_dd_old)
+      }
+      Sys.sleep(5)
     }
-    data_links <- paste0("https://ropercenter.cornell.edu", data_links)
-
-    if (spss) { 
-      for (j in seq(data_links)) {
-        data_link <- data_links[[j]]
-        dl_data <- item_page %>% 
-          jump_to(data_link)
-        
-        if (length(data_links)==1) {
-          data_file <- paste0(item, ".por")
-        } else {
-          data_file <- item_page %>% 
-            xml2::read_html() %>% 
-            html_nodes(xpath = "//a[contains(.,'SPSS file')]") %>%
-            nth(j) %>% 
-            html_text() %>%
-            trimws() %>% 
-            str_replace(" SPSS file", "") %>% 
-            str_replace_all("\\s", "_") %>% 
-            paste0(".por")
-        }
-        writeBin(httr::content(dl_data$response, "raw"), file.path(item_dir, data_file))
-        if (length(file_id) > 3) Sys.sleep(5)
-        
-        # convert data to .RData
-        if (convert == TRUE) {
-          tryCatch( 
-            {x <- tryCatch(haven::read_por(file.path(item_dir, data_file)),
-                           error = function(e) {
-                             foreign::read.spss(file.path(item_dir, data_file),
-                                                to.data.frame = TRUE,
-                                                use.value.labels = FALSE)
-                           })
-            save(x, file = stringr::str_replace(file.path(item_dir, data_file), "\\.por$", ".RData"))},
-            error = function(e) warning(paste("Conversion from .por to .RData failed for", item))
-          )
-        }
-      }
-    } else {
-      if (identical(data_links0, character(0))) {
-        warning(paste("No SPSS or ASCII data file available for", item))
-      } else {
-        dl_data <- item_page %>% 
-          jump_to(data_links[1])
-        
-        data_file <- paste0(item, ".dat")
-        writeBin(httr::content(dl_data$response, "raw"), file.path(item_dir, data_file))
-        if (length(file_id) > 3) Sys.sleep(5)
-      }
+    dd_new <- setdiff(list.files(default_dir), dd_old)
+    
+    # move to specified directory
+    dir.create(file.path(download_dir, item), showWarnings = FALSE)
+    for (i in seq_along(dd_new)) {
+      file.rename(from = file.path(default_dir, dd_new[i]), to = file.path(download_dir, item, dd_new[i]))
+      unlink(file.path(default_dir, dd_new[i]))
     }
     
-    # get codebook
-    pdf_link <- item_page %>% 
-      xml2::read_html() %>% 
-      html_node(xpath = "//a[contains(.,'PDF file')]") %>% 
-      html_attr("href") %>% 
-      trimws()
-    pdf_link <- paste0("https://ropercenter.cornell.edu", pdf_link)
-    
-    dl_pdf <- item_page %>% 
-      jump_to(pdf_link)
-    
-    pdf_file <- paste0(item, "_cb.pdf")
-    writeBin(httr::content(dl_pdf$response, "raw"), file.path(item_dir, pdf_file))
+    # convert to .RData
+    if (convert == TRUE) {
+      if (any(stringr::str_detect(dd_new, "dta|DTA"))) {
+        tryCatch(
+          {haven::read_dta(file.path(download_dir, item, stringr::str_subset(dd_new, "\\.dta|DTA")), encoding = "latin1") %>%
+            rio::export(stringr::str_replace(file.path(download_dir, item, stringr::str_subset(dd_new, "\\.(dta|DTA)")), "\\.(dta|DTA)", ".RData"))
+          spss <- 0},
+          error = function(e) spss <- 1
+        )
+      }
+      if (any(stringr::str_detect(dd_new, "dta|DTA")) == FALSE | spss == 1) {
+        tryCatch( 
+          {data_file <- stringr::str_subset(dd_new, "\\.por")
+          x <- tryCatch(haven::read_por(file.path(download_dir, item, data_file)),
+                        error = function(e) {
+                          foreign::read.spss(file.path(download_dir, item, data_file),
+                                             to.data.frame = TRUE,
+                                             use.value.labels = FALSE)
+                        })
+          save(x, file = stringr::str_replace(file.path(download_dir, item, data_file), "\\.por$", ".RData"))},
+          error = function(e) warning(paste("Conversion from .por to .RData failed for", item))
+        )
+      }
+    }
   }
+  
+  # Close driver
+  remDr$close()
+  rD[["server"]]$stop()
 }  
+
