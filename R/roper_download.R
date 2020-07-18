@@ -128,7 +128,6 @@ roper_download <- function(file_id,
     remDr$findElement(using = "css", "#download-tab")$clickElement()
     
     download_links <- remDr$getPageSource()[[1]] %>% 
-      # stringr::str_replace("Reports, Data Tables.*", "") %>% 
       stringr::str_extract_all('rc-download-btn[^"]*') %>% 
       `[[`(1) %>% 
       paste0("#", .)
@@ -161,18 +160,18 @@ roper_download <- function(file_id,
     
     # move to specified directory
     dir.create(file.path(download_dir, item), showWarnings = FALSE)
-    for (i in seq_along(dd_new)) {
-      file.rename(from = file.path(default_dir, dd_new[i]), to = file.path(download_dir, item, dd_new[i]))
-      unlink(file.path(default_dir, dd_new[i]))
+    for (ii in seq_along(dd_new)) {
+      file.rename(from = file.path(default_dir, dd_new[ii]), to = file.path(download_dir, item, dd_new[ii]))
+      unlink(file.path(default_dir, dd_new[ii]))
     }
     
     # convert to .RData
+    spss <- 0
     if (convert == TRUE) {
       if (any(stringr::str_detect(dd_new, "dta|DTA"))) {
         tryCatch(
-          {haven::read_dta(file.path(download_dir, item, stringr::str_subset(dd_new, "\\.dta|DTA")), encoding = "latin1") %>%
-            rio::export(stringr::str_replace(file.path(download_dir, item, stringr::str_subset(dd_new, "\\.(dta|DTA)")), "\\.(dta|DTA)", ".RData"))
-          spss <- 0},
+          haven::read_dta(file.path(download_dir, item, stringr::str_subset(dd_new, "\\.dta|DTA")), encoding = "latin1") %>%
+            rio::export(stringr::str_replace(file.path(download_dir, item, stringr::str_subset(dd_new, "\\.(dta|DTA)")), "\\.(dta|DTA)", ".RData")),
           error = function(e) spss <- 1
         )
       }
