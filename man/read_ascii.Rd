@@ -4,8 +4,16 @@
 \alias{read_ascii}
 \title{Read ASCII datasets downloaded from the Roper Center}
 \usage{
-read_ascii(file, total_cards = 1, var_names, var_cards = 1, var_positions,
-  var_widths, card_pattern, respondent_pattern)
+read_ascii(
+  file,
+  total_cards = 1,
+  var_names,
+  var_cards = 1,
+  var_positions,
+  var_widths,
+  card_pattern,
+  respondent_pattern
+)
 }
 \arguments{
 \item{file}{A path to an ASCII data file.}
@@ -30,14 +38,36 @@ A data frame containing any variables specified in the \code{var_names} argument
 \description{
 \code{read_ascii} helps format ASCII data files downloaded from the Roper Center.
 }
+\details{
+Many older Roper Center datasets are available only in ASCII format, which is notoriously difficult to work with.  The `read_ascii` function facilitates the process of extracting selected variables from ASCII datasets. For single-card files, one can simply identify the names, positions, and widths of the needed variables from the codebook and pass them to \code{read_ascii}'s \code{var_names}, \code{var_positions}, and \code{var_widths} arguments.  Multicard datasets are more complicated. In the best case, the file contains one line per card per respondent; then, the user can extract the needed variables by adding only the \code{var_cards} and \code{total_cards} arguments. When this condition is violated---there is not a line for every card for every respondent, or there are extra lines---the function will throw an error and request the user specify the additional arguments \code{card_pattern} and \code{respondent_pattern}.
+
+See \code{\link[readroper]{read_rpr}} for an alternate implementation.
+}
 \examples{
 \dontrun{
-gallup9206 <- read_ascii(file = "roper_data/USAIPOGNS1992-222054/USAIPOGNS1992-222054.dat",
-   total_cards = 4,
-   var_names = c("q24", "weight"),
-   var_cards = c(4, 1),
-   var_positions = c(46, 13),
-   var_widths = c(1, 3))
+# a single-card file
+roper_download("USAIPO1982-1197G", # Gallup Poll for June 25-28, 1982 (ASCII only)
+               download_dir = tempdir())  # remember to specify a directory for your download
+                      
+gallup1982 <- read_ascii(file = file.path(tempdir(), "USAIPO1982-1197G",
+                                          "1197.dat"),
+                         var_names = c("q09j", "weight"),
+                         var_positions = c(38, 1),
+                         var_widths = c(1, 1))
+   
+# a multi-card file, with extra lines that make the card_pattern and respondent_pattern arguments necessary
+roper_download("USAIPOCNUS1996-9603008", # Gallup/CNN/USA Today Poll: Politics/1996 Election (ASCII only)
+               download_dir = tempdir())  # remember to specify a directory for your download
+
+gallup1996 <- read_ascii(file = file.path(tempdir(), "USAIPOCNUS1996-9603008",
+                                          "a9603008.dat"),
+                         var_names = c("q43a", "q44", "weight"),
+                         var_cards = c(6, 6, 1),
+                         var_positions = c(62, 64, 13),
+                         var_widths = c(1, 1, 3),
+                         total_cards = 7,
+                         card_pattern = "(?<=^.{10})\\\\d", # a digit, preceded by the start of the line and ten other characters
+                         respondent_pattern = "(?<=^\\\\s{2})\\\\d{4}") # four digits, preceded by the start of the line and two whitespace characters
 }
 
 }

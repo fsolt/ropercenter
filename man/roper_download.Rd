@@ -4,17 +4,28 @@
 \alias{roper_download}
 \title{Download datasets from the Roper Center}
 \usage{
-roper_download(file_id, email = getOption("roper_email"),
-  password = getOption("roper_password"), reset = FALSE,
-  download_dir = "roper_data", msg = TRUE, convert = TRUE)
+roper_download(
+  file_id,
+  affiliation = getOption("roper_affiliation"),
+  email = getOption("roper_email"),
+  password = getOption("roper_password"),
+  reset = FALSE,
+  download_dir = "roper_data",
+  msg = TRUE,
+  convert = TRUE,
+  delay = 2
+)
 }
 \arguments{
 \item{file_id}{The unique identifier (or optionally a vector of these identifiers)
-for the dataset(s) to be downloaded (see details).}
+for the dataset(s) to be downloaded (see details).  Both new Archive Numbers and old
+Historical Archive Numbers, if the latter are available, may be used.}
 
-\item{email, password}{Your Roper Center email and password (see details)}
+\item{affiliation, email, password}{Your Roper Center affiliation, email, and password 
+(see details)}
 
-\item{reset}{If TRUE, you will be asked to re-enter your Roper Center email and password.}
+\item{reset}{If TRUE, you will be asked to re-enter your Roper Center affiliation, 
+email, and password.}
 
 \item{download_dir}{The directory (relative to your working directory) to
 which files from the Roper Center will be downloaded.}
@@ -22,29 +33,37 @@ which files from the Roper Center will be downloaded.}
 \item{msg}{If TRUE, outputs a message showing which data set is being downloaded.}
 
 \item{convert}{If TRUE, converts downloaded file(s) to .RData format.}
+
+\item{delay}{If the speed of your connection to the Roper Center data archive is particularly slow, 
+\code{roper_download} may encounter problems.  Increasing the \code{delay} parameter
+may help.}
 }
 \value{
-The function returns downloaded files.
+The function returns nothing, but has the side effect of downloading
+all files of the datasets identified in the file_id argument.
 }
 \description{
-\code{roper_download} provides a programmatic and reproducible means to download datasets 
-  from the Roper Center's data archive
+\code{roper_download} provides a programmatic and reproducible means to download  
+  datasets from the Roper Center's data archive
 }
 \details{
-To avoid requiring others to edit your scripts to insert their own email and  
- password or to force them to do so interactively, the default is set to fetch 
- this information from the user's .Rprofile.  Before running \code{roper_download}, 
- then, you should be sure to add these options to your .Rprofile substituting your 
- info for the example below:
+To avoid requiring others to edit your scripts to insert their own affiliation, 
+ email, and password or to force them to do so interactively, the default is set 
+ to fetch this information from the user's .Rprofile.  Before running 
+ \code{roper_download}, then, you should be sure to add these options to your 
+ .Rprofile (\code{usethis::edit_r_profile()} is one particularly easy way),
+ substituting your own info for the example below:
 
  \code{
-  options("roper_email" = "juanita-herrara@uppermidwest.edu",
-         "roper_password" = "password123!")
+  options("roper_affiliation" = "Upper Midwest University",
+          "roper_email" = "juanita-herrara@uppermidwest.edu",
+          "roper_password" = "password123!")
  }
 }
 \examples{
 \dontrun{
- roper_download(file_id = c("CNCIPO1996-96010", "CNCIPO2000-02"))
+ roper_download(file_id = c("31117412", "USPEW2015-GOVERNANCE"),
+                download_dir = tempdir()) # remember to specify a directory for your download
 }
 
 }
