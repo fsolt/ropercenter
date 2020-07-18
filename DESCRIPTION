@@ -1,10 +1,12 @@
 Package: ropercenter
 Type: Package
 Title: Reproducible Data Retrieval from the Roper Center Data Archive
-Version: 0.2.0
-Date: 2018-06-27
+Version: 0.3.0
+Date: 2020-08-18
 Authors@R: c(
-    person("Frederick", "Solt", email = "frederick-solt@uiowa.edu", role = c("aut", "cre")))
+    person("Frederick", "Solt", email = "frederick-solt@uiowa.edu", role = c("aut", "cre", "cph")),
+    person("Jennifer", "Lin", email = "jenniferlin2025@u.northwestern.edu", role = c("ctb")),
+    person("Paul", "Gronke", email = "gronkep@reed.edu", role = c("ctb")))
 URL: https://github.com/fsolt/ropercenter
 BugReports: https://github.com/fsolt/ropercenter/issues
 Description: Reproducible, programmatic retrieval of datasets from the
@@ -24,14 +26,15 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 Imports:
-  rvest,
-  httr,
-  xml2,
+  RSelenium,
   dplyr,
-  stringr,
+  foriegn,
   haven,
-  foreign,
+  magrittr,
+  readr,
+  rio,
+  stringr,
   tibble,
-  tidyr,
-  readr
-RoxygenNote: 6.0.1
+  tidyr
+Encoding: UTF-8
+RoxygenNote: 7.1.0
