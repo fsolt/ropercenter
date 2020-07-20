@@ -9,7 +9,7 @@ The [Roper Center for Public Opinion Research](http://ropercenter.cornell.edu), 
 The `ropercenter` package cuts this knot by providing programmatic, reproducible access to specified Roper Center datasets from within R for [registered users](https://ropercenter.cornell.edu/make-personalized-account/) at the Roper Center's [member institutions](https://ropercenter.cornell.edu/list-of-members/). 
 
 
-To install:
+`ropercenter` requires an installation of the latest version of Chrome to run; [get Chrome here](https://www.google.com/chrome/).  Once you have installed Chrome, to install `ropercenter`:
 
 * the latest released version: `install.packages("ropercenter")`
 * the latest development version:
