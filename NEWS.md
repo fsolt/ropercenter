@@ -1,3 +1,6 @@
+## Version 0.3.0
+Switch to RSelenium for Roper Center's new website. 
+
 ## Version 0.2.0
 #### New features
 1. This release includes the new `read_ascii()` function for extracting data from Roper Center ASCII files.
