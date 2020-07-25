@@ -1,3 +1,3 @@
 .onAttach <- function(...) {
-  packageStartupMessage("ropercenter requires the latest version of the Chrome browser.\nChrome is available at https://www.google.com/chrome")
+  packageStartupMessage("ropercenter requires the beta version of the Chrome browser.\nThe Chrome beta is available at https://www.google.com/chrome/beta/")
 }
