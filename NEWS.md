@@ -1,3 +1,6 @@
+## Version 0.3.1
+Update documentation to note dependency on Chrome beta (rather than Chrome) due to recent change in Selenium dependencies (via RSelenium)
+
 ## Version 0.3.0
 Switch to RSelenium for Roper Center's new website. 
 
