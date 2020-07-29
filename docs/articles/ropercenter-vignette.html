@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ropercenter</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
       </span>
     </div>
 
@@ -85,7 +85,7 @@
       <h1 data-toc-skip>ropercenter: Reproducible Retrieval of Roper Center Datasets</h1>
                         <h4 class="author">Frederick Solt</h4>
             
-            <h4 class="date">2020-07-18</h4>
+            <h4 class="date">2020-07-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/fsolt/ropercenter/blob/master/vignettes/ropercenter-vignette.Rmd"><code>vignettes/ropercenter-vignette.Rmd</code></a></small>
       <div class="hidden name"><code>ropercenter-vignette.Rmd</code></div>
@@ -100,7 +100,8 @@
 <div id="setup" class="section level2">
 <h2 class="hasAnchor">
 <a href="#setup" class="anchor"></a>Setup</h2>
-<p>When used interactively, the <code>roper_download</code> function will ask for the login information required by the Roper Center: the registered user’s email and password. After that information is input once, it will be entered automatically for any other download requests made in the same session. To change this contact information within a session, one may set the argument <code>reset</code> to <code>TRUE</code> when running <code>roper_download</code> again, and the function will again request the required information.</p>
+<p>The <code>ropercenter</code> package interacts with the Roper Center website using the beta version of the Chrome browser. <a href="https://www.google.com/chrome/beta/">Get the Chrome beta here</a>.</p>
+<p>When used interactively, the <code>roper_download</code> function will ask for the login information required by the Roper Center: the registered user’s affiliation, email, and password. After that information is input once, it will be entered automatically for any other download requests made in the same session. To change this contact information within a session, one may set the argument <code>reset</code> to <code>TRUE</code> when running <code>roper_download</code> again, and the function will again request the required information.</p>
 <p>An optional, but highly recommended, setup step is to add the information the Roper Center requires to your <a href="http://www.statmethods.net/interface/customizing.html">.Rprofile</a> as in the following example:</p>
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="st">"roper_email"</span> <span class="kw">=</span> <span class="st">"juanita-herrera@uppermidwest.edu"</span>,
         <span class="st">"roper_password"</span> <span class="kw">=</span> <span class="st">"password123!"</span>)</pre></body></html></div>
