@@ -153,7 +153,8 @@ roper_download <- function(file_id,
       remDr$findElement(using = "css", download_links[j])$clickElement() # initiate data download
       Sys.sleep(delay * .61)
       
-      if (try(unlist(remDr$findElement(using = "css", "#rc-downloads-tc-modal-accept-btn")$getElementAttribute('id')), silent = TRUE) == "rc-downloads-tc-modal-accept-btn") { # check for terms pop-up
+      element <- try(unlist(remDr$findElement(using = "css", "#rc-downloads-tc-modal-accept-btn")$getElementAttribute('id')), silent = TRUE)
+      if (element == "rc-downloads-tc-modal-accept-btn") { # check for terms pop-up
         remDr$findElement(using = "css", "#rc-downloads-tc-modal-accept-btn")$clickElement() # accept terms 
       }
       
@@ -173,8 +174,9 @@ roper_download <- function(file_id,
             remDr$findElement(using = "css", download_links[j])$clickElement() # initiate data download
             Sys.sleep(sum(abs(rnorm(delay))))
             
-            while(try(unlist(remDr$findElement(using = "css", "#rc-downloads-tc-modal-accept-btn")$getElementAttribute('id')), silent = TRUE) == "rc-downloads-tc-modal-accept-btn") { # check for terms pop-up
-                remDr$findElement(using = "css", "#rc-downloads-tc-modal-accept-btn")$clickElement() # accept terms 
+            element <- try(unlist(remDr$findElement(using = "css", "#rc-downloads-tc-modal-accept-btn")$getElementAttribute('id')), silent = TRUE)
+            if (element == "rc-downloads-tc-modal-accept-btn") { # check for terms pop-up
+              remDr$findElement(using = "css", "#rc-downloads-tc-modal-accept-btn")$clickElement() # accept terms 
               Sys.sleep(1)
             }
             Sys.sleep(abs(rnorm(1)))
