@@ -131,6 +131,9 @@ roper_download <- function(file_id,
     url <- paste0("https://ropercenter.cornell.edu/ipoll/study/", item)
     remDr$navigate(url)
     Sys.sleep(delay)
+    if (try(unlist(remDr$findElement(using = "class", "accept-container")$getElementAttribute('id')), silent = TRUE) == "") { # check for cookies pop-up
+      remDr$findElement(using = "css", ".accept-container .btn-primary")$clickElement() # accept cookies 
+    }  
     
     # switch to download tab
     remDr$findElement(using = "css", "#download-tab")$clickElement()
@@ -156,19 +159,35 @@ roper_download <- function(file_id,
       
       # check that download has completed
       dd_new <- setdiff(list.files(default_dir), new_dd_old)
+      
+      jj = 0
       tryCatch(
-        while(all.equal(stringr::str_detect(dd_new, "\\.part$"), logical(0))) { # has download started?
-          Sys.sleep(1)
+        while(length(dd_new) == 0) { # has download started?
+          Sys.sleep(abs(rnorm(1)))
           dd_new <- setdiff(list.files(default_dir), new_dd_old)
-          message("trying to start")
+          message("waiting for download to start")
+          if (jj < 10)
+            jj = jj + 1
+          else {
+            message("attempting to start download again")
+            remDr$findElement(using = "css", download_links[j])$clickElement() # initiate data download
+            Sys.sleep(sum(abs(rnorm(delay))))
+            
+            while(try(unlist(remDr$findElement(using = "css", "#rc-downloads-tc-modal-accept-btn")$getElementAttribute('id')), silent = TRUE) == "rc-downloads-tc-modal-accept-btn") { # check for terms pop-up
+                remDr$findElement(using = "css", "#rc-downloads-tc-modal-accept-btn")$clickElement() # accept terms 
+              Sys.sleep(1)
+            }
+            Sys.sleep(abs(rnorm(1)))
+            jj = 0
+          }
         }, error = function(e) 1
       )
       while(any(stringr::str_detect(dd_new, "\\.part$"))) { # has download finished?
         Sys.sleep(1)
         dd_new <- setdiff(list.files(default_dir), new_dd_old)
-        message("trying to finish")
+        message("waiting for download to finish")
       }
-      Sys.sleep(5)
+      Sys.sleep(sum(abs(rnorm(delay*2))))
     }
     dd_new <- setdiff(list.files(default_dir), dd_old)
     
