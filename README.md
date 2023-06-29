@@ -1,4 +1,4 @@
-[![CRAN version](http://www.r-pkg.org/badges/version/ropercenter)](https://cran.r-project.org/package=icpsrdata) ![](http://cranlogs.r-pkg.org/badges/grand-total/ropercenter) [![Travis-CI Build Status](https://travis-ci.org/fsolt/ropercenter.svg?branch=master)](https://travis-ci.org/fsolt/ropercenter)
+[![CRAN version](http://www.r-pkg.org/badges/version/ropercenter)](https://cran.r-project.org/package=icpsrdata) ![](http://cranlogs.r-pkg.org/badges/grand-total/ropercenter)
 ------------------------------------------------------------------------
 
 ropercenter
