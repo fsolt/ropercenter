@@ -7,6 +7,7 @@ Authors@R: c(
     person("Frederick", "Solt", email = "frederick-solt@uiowa.edu", role = c("aut", "cre", "cph")),
     person("Jennifer", "Lin", email = "jenniferlin2025@u.northwestern.edu", role = c("ctb")),
     person("Paul", "Gronke", email = "gronkep@reed.edu", role = c("ctb")))
+    person("Dave", "Peterson", email = "daveamp@iastate.edu", role = c("ctb")))
 URL: https://github.com/fsolt/ropercenter
 BugReports: https://github.com/fsolt/ropercenter/issues
 Description: Reproducible, programmatic retrieval of datasets from the
@@ -31,6 +32,8 @@ Imports:
   foreign,
   haven,
   magrittr,
+  netstat,
+  purrr,
   readr,
   rio,
   stringr,
