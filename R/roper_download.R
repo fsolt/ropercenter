@@ -47,6 +47,7 @@
 #' @importFrom rio export
 #' @importFrom haven read_dta read_por
 #' @importFrom foreign read.spss
+#' @importFrom netstat free_port
 #' 
 #' @export
 roper_download <- function(file_id,
@@ -97,20 +98,25 @@ roper_download <- function(file_id,
   
   # initialize driver
   if (msg) message("Initializing RSelenium driver")
-  rD <- RSelenium::rsDriver(browser = "chrome", verbose = TRUE)
-  remDr <- rD[["client"]]
+  rD <- rsDriver(browser="firefox", 
+                       port = free_port(),
+                       verbose = FALSE,
+                       chromever = NULL)
+  remDr <- rD$client
   
   # sign in
   signin <- "https://ropercenter.cornell.edu/ipoll/login"
   remDr$navigate(signin)
   Sys.sleep(delay)
-  if (try(unlist(remDr$findElement(using = "class", "accept-container")$getElementAttribute('id')), silent = TRUE) == "") { # check for cookies pop-up
-    remDr$findElement(using = "class", "accept-container")$clickElement() # accept cookies 
-  }
+
   remDr$findElement(using = "id", "react-select-2-input")$sendKeysToElement(list(affiliation, key = "enter"))
   remDr$findElement(using = "id", "username")$sendKeysToElement(list(email))
   remDr$findElement(using = "id", "password")$sendKeysToElement(list(password))
-  remDr$findElement(using = "css", ".btn-primary")$clickElement()
+  remDr$findElement(using = "css", ".btn.btn-primary.float-right")$clickElement()
+  if (try(unlist(remDr$findElement(using = "class", "accept-container")$getElementAttribute('id')), silent = TRUE) == "") { # check for cookies pop-up
+    remDr$findElement(using = "css", ".accept-container .btn-primary")$clickElement() # accept cookies 
+  }  
+  
   Sys.sleep(delay)
   
   # Loop through files
@@ -134,6 +140,10 @@ roper_download <- function(file_id,
       `[[`(1) %>% 
       paste0("#", .)
     
+    download_files <- remDr$getPageSource()[[1]] %>% 
+      stringr::str_extract_all('(?<=\\()[^)]+\\.[a-z]{3,4}(?=\\))') %>% 
+      `[[`(1)
+    
     # download all files
     for (j in seq_along(download_links)) {
       new_dd_old <- list.files(default_dir)
@@ -150,11 +160,13 @@ roper_download <- function(file_id,
         while(all.equal(stringr::str_detect(dd_new, "\\.part$"), logical(0))) { # has download started?
           Sys.sleep(1)
           dd_new <- setdiff(list.files(default_dir), new_dd_old)
+          message("trying to start")
         }, error = function(e) 1
       )
-      while(any(stringr::str_detect(dd_new, "\\.crdownload$"))) { # has download finished?
+      while(any(stringr::str_detect(dd_new, "\\.part$"))) { # has download finished?
         Sys.sleep(1)
         dd_new <- setdiff(list.files(default_dir), new_dd_old)
+        message("trying to finish")
       }
       Sys.sleep(5)
     }

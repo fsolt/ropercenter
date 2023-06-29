@@ -51,9 +51,10 @@
 #' 
 #' @importFrom readr read_lines parse_guess
 #' @importFrom tibble as_tibble
-#' @importFrom dplyr '%>%' mutate filter
-#' @importFrom tidyr spread
-#' @importFrom stringr str_extract str_replace
+#' @importFrom dplyr '%>%' mutate filter select summarise group_by if_else row_number first
+#' @importFrom tidyr spread fill separate pivot_longer nest
+#' @importFrom stringr str_extract str_replace str_trim str_replace_all str_c
+#' @importFrom purrr as_vector
 #' 
 #' @export
 read_ascii <- function(file,
@@ -64,9 +65,9 @@ read_ascii <- function(file,
                        var_widths,
                        card_pattern,
                        respondent_pattern) {
-
+  
   . <- value <- NULL   # satisfy R CMD check
-     
+  
   if ((length(read_lines(file)) %% total_cards) != 0 & (missing(card_pattern) | missing(respondent_pattern))) {
     stop("The number of lines in the file is not a multiple of the number of cards in the file.  Please specify card_pattern and respondent_pattern", call. = FALSE)
   }
@@ -74,22 +75,22 @@ read_ascii <- function(file,
   if (length(var_cards) == 1 & !missing(var_names)) {
     var_cards = rep(var_cards, length(var_names))
   }
-
+  
   if (missing(card_pattern)) {
     df <- read_lines(file) %>%
       as_tibble() %>%
-      mutate(card = paste0("card", rep_len(seq_len(total_cards), nrow(.))),
-             respondent = rep(seq(to = nrow(.)/total_cards), each = total_cards)) %>%
+      dplyr::mutate(card = paste0("card", rep_len(seq_len(total_cards), nrow(.))),
+                    respondent = rep(seq(to = nrow(.)/total_cards), each = total_cards)) %>%
       spread(key = "card", value = "value")
   } else {
     df <- read_lines(file) %>%
       as_tibble() %>% 
-      mutate(card = paste0("card", str_extract(value, card_pattern))) %>% 
+      dplyr::mutate(card = paste0("card", str_extract(value, card_pattern))) %>% 
       filter(!card == "cardNA") %>% 
-      mutate(respondent = str_extract(value, respondent_pattern)) %>%
+      dplyr::mutate(respondent = str_extract(value, respondent_pattern)) %>%
       spread(key = "card", value = "value")
   }
-
+  
   if (!missing(var_names)) {
     if (missing(var_positions) | missing(var_widths)) {
       stop("Variable positions and widths should also be given when variable names are specified", call. = FALSE)
@@ -106,9 +107,91 @@ read_ascii <- function(file,
                                                     paste0("^.{", var_positions[i] - 1, "}(.{", var_widths[i], "}).*"),
                                                     "\\1") %>% 
                                           str_replace("^\\s+$", ""))
-      is.na(df[[var_names[i]]]) <- which(!nchar(df[[var_names[i]]]) == var_widths[i])
+      if (var_widths[i] < 4) {
+        is.na(df[[var_names[i]]]) <- which(!nchar(df[[var_names[i]]]) == var_widths[i])
+      }
     }
   }
   
   return(df)
 }
+
+setup_file <- "../Data/dcpo_surveys/icpsr_files/cnes_files/ICPSR_03969/DS0001/03969-0001-Setup.sps"
+setup <- read_lines(setup_file) %>%
+  as_tibble() %>% 
+  dplyr::mutate(section = str_extract(value, "^\\*.+")) %>%
+  tidyr::fill(section) 
+
+data_list <- setup %>%
+  filter(str_detect(value, "\\w+\\s\\d+-\\d+")) %>%
+  dplyr::mutate(value = stringr::str_trim(value)) %>% 
+  tidyr::separate(value, 
+                  sep = "\\s+(?=\\w+\\s\\d+-\\d+)", 
+                  into = LETTERS[1:5], 
+                  fill = "right") %>%
+  tidyr::pivot_longer(LETTERS[1:5]) %>%
+  filter(!is.na(value)) %>% 
+  tidyr::separate(value, 
+                  sep = "[\\s-]+",
+                  into = c("variable", "first_col", "last_col", "notes"),
+                  fill = "right") %>% 
+  dplyr::mutate(first_col = as.numeric(first_col),
+                last_col = as.numeric(last_col),
+                width = last_col - first_col + 1) %>%
+  dplyr::select(variable, first_col, last_col, width)
+
+ascii_dataset <- read_ascii("../Data/dcpo_surveys/icpsr_files/cnes_files/ICPSR_03969/DS0001/03969-0001-Data.txt",
+                            var_names = data_list$variable,
+                            var_positions = data_list$first_col,
+                            var_widths = data_list$width)
+
+variable_labels <- setup %>% 
+  filter(str_detect(section, "LABELS")) %>%
+  dplyr::mutate(section = str_extract(value, ".*LABELS.*")) %>%
+  tidyr::fill(section) %>%
+  filter(str_detect(section, "VARIABLE")) %>%
+  dplyr::mutate(var = str_extract(value, "^[^'\"]*") %>% 
+                  stringr::str_trim(),
+                label = str_extract(value, "\".*\""),
+                label2 = dplyr::if_else(is.na(label), str_extract(value, "'.*'"), label) %>% 
+                  stringr::str_replace_all("^[\"']|[\"']$", "") %>% 
+                  stringr::str_trim(),
+                id = dplyr::if_else(var != "", dplyr::row_number(), NA_integer_)) %>% 
+  tidyr::fill(id) %>% 
+  dplyr::group_by(id) %>%
+  dplyr::summarise(variable = dplyr::first(var),
+                   label = stringr::str_c(label2, collapse = " ")) %>% 
+  filter(!is.na(label)) %>% 
+  dplyr::select(-id)
+
+var_labels <- split(variable_labels$label, variable_labels$variable)
+
+ascii_dataset2 <- ascii_dataset %>% 
+  labelled::set_variable_labels(.labels = var_labels)
+
+value_labels <- setup %>% 
+  filter(str_detect(section, "LABELS")) %>%
+  dplyr::mutate(section = str_extract(value, ".*LABELS.*")) %>%
+  tidyr::fill(section) %>%
+  filter(str_detect(section, "VALUE")) %>%
+  dplyr::mutate(variable = dplyr::if_else(str_detect(value, "^\\s*\\d"), NA_character_, stringr::str_trim(value)),
+                value2 = dplyr::if_else(is.na(variable),
+                                        str_replace(value, "(\\d+)\\s.*", "\\1") %>% 
+                                          stringr::str_trim(),
+                                        NA_character_),
+                label2 = dplyr::if_else(is.na(variable),
+                                        str_replace(value, "\\d+\\s(.*)", "\\1") %>% 
+                                          str_replace("/", "") %>% 
+                                          stringr::str_trim(),
+                                        NA_character_)) %>% 
+  tidyr::fill(variable) %>% 
+  filter(!is.na(value2)) %>% 
+  dplyr::select(variable, value2, label2) %>% 
+  tidyr::nest(labels = c(value2, label2))
+
+for(i in 1:nrow(value_labels)) {
+  x_labs <- value_labels[i, "labels"][[1]][[1]]
+  labelled::val_labels(ascii_dataset2[, value_labels$variable[i]]) <- split(as.numeric(x_labs$value2), x_labs$label2) %>% 
+    purrr::as_vector()
+}
+
