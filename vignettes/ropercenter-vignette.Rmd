@@ -18,7 +18,7 @@ Please remember that by using Roper Center services, you accept all of the Cente
 
 ## Setup
 
-The `ropercenter` package interacts with the Roper Center website using the beta version of the Chrome browser.  [Get the Chrome beta here](https://www.google.com/chrome/beta/).
+The `ropercenter` package interacts with the Roper Center website using the Firefox browser.  [Get Firefox here](https://www.mozilla.org/firefox/).
 
 When used interactively, the `roper_download` function will ask for the login information required by the Roper Center: the registered user's affiliation, email, and password. 
 After that information is input once, it will be entered automatically for any other download requests made in the same session.  To change this contact information within a session, one may set the argument `reset` to `TRUE` when running `roper_download` again, and the function will again request the required information. 

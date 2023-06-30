@@ -86,7 +86,7 @@ roper_download <- function(file_id,
     password <- getOption("roper_password")
   }
   
-  # build path to chrome's default download directory
+  # build path to firefox's default download directory
   if (Sys.info()[["sysname"]]=="Linux") {
     default_dir <- file.path("home", Sys.info()[["user"]], "Downloads")
   } else {
