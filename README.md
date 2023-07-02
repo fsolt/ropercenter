@@ -2,6 +2,7 @@
 [![CRAN version](http://www.r-pkg.org/badges/version/ropercenter)](https://cran.r-project.org/package=icpsrdata) ![](http://cranlogs.r-pkg.org/badges/grand-total/ropercenter)
 [![R-CMD-check](https://github.com/fsolt/ropercenter/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/fsolt/ropercenter/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
+
 ------------------------------------------------------------------------
 
 ropercenter
@@ -12,7 +13,7 @@ The [Roper Center for Public Opinion Research](http://ropercenter.cornell.edu), 
 The `ropercenter` package cuts this knot by providing programmatic, reproducible access to specified Roper Center datasets from within R for [registered users](https://ropercenter.cornell.edu/make-personalized-account/) at the Roper Center's [member institutions](https://ropercenter.cornell.edu/membership/list-members). 
 
 
-`ropercenter` requires an installation of the beta version of Chrome to run; [get the Chrome beta here](https://www.google.com/chrome/beta/).  Once you have installed the Chrome beta, to install `ropercenter`:
+The `ropercenter` package interacts with the Roper Center website using the Firefox browser.  [Get Firefox here](https://www.mozilla.org/firefox/).  Once you have installed Firefox, to install `ropercenter`:
 
 * the latest released version: `install.packages("ropercenter")`
 * the latest development version:
