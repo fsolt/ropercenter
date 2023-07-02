@@ -1,4 +1,7 @@
+<!-- badges: start -->
 [![CRAN version](http://www.r-pkg.org/badges/version/ropercenter)](https://cran.r-project.org/package=icpsrdata) ![](http://cranlogs.r-pkg.org/badges/grand-total/ropercenter)
+[![R-CMD-check](https://github.com/fsolt/ropercenter/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/fsolt/ropercenter/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
 ------------------------------------------------------------------------
 
 ropercenter
