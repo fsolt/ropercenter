@@ -8,7 +8,7 @@ Authors@R: c(
     person("Jennifer", "Lin", email = "jenniferlin2025@u.northwestern.edu", role = c("ctb")),
     person("Paul", "Gronke", email = "gronkep@reed.edu", role = c("ctb")),
     person("Dave", "Peterson", email = "daveamp@iastate.edu", role = c("ctb")))
-URL: https://github.com/fsolt/ropercenter, http://fsolt.org/ropercenter/
+URL: https://github.com/fsolt/ropercenter, https://fsolt.org/ropercenter/
 BugReports: https://github.com/fsolt/ropercenter/issues
 Description: Reproducible, programmatic retrieval of datasets from the
     Roper Center data archive.  The Roper Center for Public Opinion

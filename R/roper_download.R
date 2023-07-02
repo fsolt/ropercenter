@@ -48,6 +48,7 @@
 #' @importFrom haven read_dta read_por
 #' @importFrom foreign read.spss
 #' @importFrom netstat free_port
+#' @importFrom stats rnorm
 #' 
 #' @export
 roper_download <- function(file_id,
