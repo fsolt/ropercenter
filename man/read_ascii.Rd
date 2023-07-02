@@ -40,8 +40,6 @@ A data frame containing any variables specified in the \code{var_names} argument
 }
 \details{
 Many older Roper Center datasets are available only in ASCII format, which is notoriously difficult to work with.  The `read_ascii` function facilitates the process of extracting selected variables from ASCII datasets. For single-card files, one can simply identify the names, positions, and widths of the needed variables from the codebook and pass them to \code{read_ascii}'s \code{var_names}, \code{var_positions}, and \code{var_widths} arguments.  Multicard datasets are more complicated. In the best case, the file contains one line per card per respondent; then, the user can extract the needed variables by adding only the \code{var_cards} and \code{total_cards} arguments. When this condition is violated---there is not a line for every card for every respondent, or there are extra lines---the function will throw an error and request the user specify the additional arguments \code{card_pattern} and \code{respondent_pattern}.
-
-See \code{\link[readroper]{read_rpr}} for an alternate implementation.
 }
 \examples{
 \dontrun{
