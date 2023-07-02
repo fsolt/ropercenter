@@ -4,14 +4,23 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="Reproducible, programmatic retrieval of datasets from the
+    Roper Center data archive.  The Roper Center for Public Opinion
+    Research &lt;https://ropercenter.cornell.edu&gt; maintains the largest 
+    archive of public opinion data in existence, but researchers using
+    these datasets are caught in a bind.  The Centers terms and conditions
+    bar redistribution of downloaded datasets, but to ensure that ones 
+    work can be reproduced, assessed, and built upon by others, one must
+    provide access to the raw data one employed.  The `ropercenter`
+    package cuts this knot by providing registered users with programmatic,
+    reproducible access to Roper Center datasets from within R.">
 <title>Reproducible Data Retrieval from the Roper Center Data Archive • ropercenter</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
-<script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="Reproducible Data Retrieval from the Roper Center Data Archive">
+<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Reproducible Data Retrieval from the Roper Center Data Archive">
 <meta property="og:description" content="Reproducible, programmatic retrieval of datasets from the
     Roper Center data archive.  The Roper Center for Public Opinion
     Research &lt;https://ropercenter.cornell.edu&gt; maintains the largest 
@@ -27,139 +36,129 @@
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body data-spy="scroll" data-target="#toc">
-    <div class="container template-home">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="index.html">ropercenter</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
-      </span>
-    </div>
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
+    
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    
+    <a class="navbar-brand me-2" href="index.html">ropercenter</a>
+
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item">
+  <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
-<li>
-  <a href="reference/index.html">Reference</a>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="articles/ropercenter-vignette.html">ropercenter: Reproducible Retrieval of Roper Center Datasets</a>
+  </div>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="articles/ropercenter-vignette.html">ropercenter: Reproducible Retrieval of Roper Center Datasets</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="news/index.html">Changelog</a>
+<li class="nav-item">
+  <a class="nav-link" href="news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/fsolt/ropercenter/">
+<form class="form-inline my-2 my-lg-0" role="search">
+        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="search.json" id="search-input" placeholder="Search for" autocomplete="off">
+</form>
+
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/fsolt/ropercenter/" aria-label="github">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
       </ul>
 </div>
-<!--/.nav-collapse -->
+
+    
   </div>
-<!--/.container -->
-</div>
-<!--/.navbar -->
-
-      
-
-      </header><div class="row">
-  <div class="contents col-md-9">
-
-<div id="cran-version--travis-ci-build-status" class="section level2">
-<h2 class="hasAnchor">
-<a href="#cran-version--travis-ci-build-status" class="anchor"></a><a href="https://cran.r-project.org/package=icpsrdata"><img src="http://www.r-pkg.org/badges/version/ropercenter" alt="CRAN version"></a> <img src="http://cranlogs.r-pkg.org/badges/grand-total/ropercenter"><a href="https://travis-ci.org/fsolt/ropercenter"><img src="https://travis-ci.org/fsolt/ropercenter.svg?branch=master" alt="Travis-CI Build Status"></a>
-</h2>
-</div>
-<div id="ropercenter" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#ropercenter" class="anchor"></a>ropercenter</h1></div>
-<p>The <a href="http://ropercenter.cornell.edu">Roper Center for Public Opinion Research</a>, in its own words, works “to collect, preserve, and disseminate public opinion data; to serve as a resource to help improve the practice of survey research; and to broaden the understanding of public opinion through the use of survey data in the United States and around the world.” It maintains the largest archive of public opinion data in existence, holding data dating back to the 1930s and from over 100 countries. Researchers taking advantage of these datasets, however, are caught in a bind. The terms and conditions for downloading any Roper Center dataset state that datasets “may not be resold or re-disseminated.” But to ensure that one’s work can be reproduced, assessed, and built upon by others, one must provide access to the raw data one employed.</p>
-<p>The <code>ropercenter</code> package cuts this knot by providing programmatic, reproducible access to specified Roper Center datasets from within R for <a href="https://ropercenter.cornell.edu/make-personalized-account/">registered users</a> at the Roper Center’s <a href="https://ropercenter.cornell.edu/membership/list-members">member institutions</a>.</p>
-<p><code>ropercenter</code> requires an installation of the beta version of Chrome to run; <a href="https://www.google.com/chrome/beta/">get the Chrome beta here</a>. Once you have installed the Chrome beta, to install <code>ropercenter</code>:</p>
+</nav><div class="container template-home">
+<div class="row">
+  <main id="main" class="col-md-9"><p><a href="https://cran.r-project.org/package=icpsrdata" class="external-link"><img src="http://www.r-pkg.org/badges/version/ropercenter" alt="CRAN version"></a> <img src="http://cranlogs.r-pkg.org/badges/grand-total/ropercenter"><a href="https://github.com/fsolt/ropercenter/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/fsolt/ropercenter/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <!-- badges: end --> ————————————————————————</p>
+<div class="section level1">
+<div class="page-header"><h1 id="ropercenter">ropercenter<a class="anchor" aria-label="anchor" href="#ropercenter"></a>
+</h1></div>
+<p>The <a href="http://ropercenter.cornell.edu" class="external-link">Roper Center for Public Opinion Research</a>, in its own words, works “to collect, preserve, and disseminate public opinion data; to serve as a resource to help improve the practice of survey research; and to broaden the understanding of public opinion through the use of survey data in the United States and around the world.” It maintains the largest archive of public opinion data in existence, holding data dating back to the 1930s and from over 100 countries. Researchers taking advantage of these datasets, however, are caught in a bind. The terms and conditions for downloading any Roper Center dataset state that datasets “may not be resold or re-disseminated.” But to ensure that one’s work can be reproduced, assessed, and built upon by others, one must provide access to the raw data one employed.</p>
+<p>The <code>ropercenter</code> package cuts this knot by providing programmatic, reproducible access to specified Roper Center datasets from within R for <a href="https://ropercenter.cornell.edu/make-personalized-account/" class="external-link">registered users</a> at the Roper Center’s <a href="https://ropercenter.cornell.edu/membership/list-members" class="external-link">member institutions</a>.</p>
+<p><code>ropercenter</code> requires an installation of the beta version of Chrome to run; <a href="https://www.google.com/chrome/beta/" class="external-link">get the Chrome beta here</a>. Once you have installed the Chrome beta, to install <code>ropercenter</code>:</p>
 <ul>
-<li>the latest released version: <code><a href="https://rdrr.io/r/utils/install.packages.html">install.packages("ropercenter")</a></code>
+<li>the latest released version: <code>install.packages("ropercenter")</code>
 </li>
 <li>the latest development version:</li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="r"><span class="kw">if</span> (!<span class="fu"><a href="https://rdrr.io/r/base/library.html">require</a></span>(<span class="no">remotes</span>)) <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"remotes"</span>)
-<span class="kw pkg">remotes</span><span class="kw ns">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">"fsolt/ropercenter"</span>)</pre></div>
-<p>For more details, check out <a href="https://fsolt.org/ropercenter/articles/ropercenter-vignette.html">the vignette</a>.</p>
-<p>Please recall that by using Roper Center services, you accept the Center’s <a href="https://ropercenter.cornell.edu/roper-center-data-archive-terms-and-conditions">Terms and Conditions</a>.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"fsolt/ropercenter"</span><span class="op">)</span></span></code></pre></div>
+<p>For more details, check out <a href="https://fsolt.org/ropercenter/articles/ropercenter-vignette.html" class="external-link">the vignette</a>.</p>
+<p>Please recall that by using Roper Center services, you accept the Center’s <a href="https://ropercenter.cornell.edu/roper-center-data-archive-terms-and-conditions" class="external-link">Terms and Conditions</a>.</p>
 </div>
 
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-    <div class="links">
-<h2>Links</h2>
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=ropercenter">https://​cloud.r-project.org/​package=ropercenter</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/fsolt/ropercenter/">https://​github.com/​fsolt/​ropercenter/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/fsolt/ropercenter/issues">https://​github.com/​fsolt/​ropercenter/​issues</a>
-</li>
+<li><a href="https://cloud.r-project.org/package=ropercenter" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/fsolt/ropercenter/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/fsolt/ropercenter/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li>
-<a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a>
+<a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a>
 </li>
 </ul>
 </div>
-<div class="developers">
-<h2>Developers</h2>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li>Frederick Solt <br><small class="roles"> Author, maintainer, copyright holder </small>  </li>
-<li><a href="authors.html">All authors...</a></li>
+<li><a href="authors.html#citation">Citing ropercenter</a></li>
 </ul>
 </div>
 
-  </div>
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
+<ul class="list-unstyled">
+<li>Frederick Solt <br><small class="roles"> Author, maintainer, copyright holder </small>  </li>
+<li><a href="authors.html">More about authors...</a></li>
+</ul>
 </div>
 
 
-      <footer><div class="copyright">
-  <p>Developed by Frederick Solt.</p>
+
+  </aside>
 </div>
 
-<div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+
+    <footer><div class="pkgdown-footer-left">
+  <p></p>
+<p>Developed by Frederick Solt.</p>
 </div>
 
-      </footer>
+<div class="pkgdown-footer-right">
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+</div>
+
+    </footer>
 </div>
 
   
 
+  
 
   </body>
 </html>
