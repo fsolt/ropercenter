@@ -21,7 +21,6 @@ Description: Reproducible, programmatic retrieval of datasets from the
     package cuts this knot by providing registered users with programmatic,
     reproducible access to Roper Center datasets from within R.
 License: MIT + file LICENSE
-LazyData: TRUE
 Suggests:
     knitr,
     rmarkdown
