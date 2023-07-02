@@ -1,3 +1,6 @@
+## Version 0.3.2
+Use Firefox rather than the Chrome beta as the RSelenium browser.
+
 ## Version 0.3.1
 Update documentation to note dependency on Chrome beta (rather than Chrome) due to recent change in Selenium dependencies (via RSelenium)
 
