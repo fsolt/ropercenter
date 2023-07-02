@@ -1,7 +1,10 @@
 ## Test environments
-* Local OS X install, 4.0.1 (2018-04-23)
-* Ubuntu 16.04.6 (on travis-ci), R 4.0.0 (2020-04-24)
-* win-builder (R version 4.0.2 (2020-06-22))
+* macOS Monterey 12.6.7 (macos-latest (release) on GitHub), R version 4.3.1 (2023-06-16)
+* Windows Server 2022 x64 (build 20348) (windows-latest (release) on GitHub), R version 4.3.1 (2023-06-16)
+* Ubuntu 22.04.2 LTS (ubuntu-latest (devel) on GitHub), R Under development (unstable) (2023-07-01 r84626)
+* Ubuntu 22.04.2 LTS (ubuntu-latest (release) on GitHub), R version 4.3.1 (2023-06-16)
+* Ubuntu 22.04.2 LTS (ubuntu-latest (oldrel-1) on GitHub), R version 4.2.3 (2023-03-15)
+* win-builder, R Under development (unstable) (2023-07-01 r84626 ucrt)
 
 ## R CMD check results
 0 errors | 0 warnings | 0 notes
